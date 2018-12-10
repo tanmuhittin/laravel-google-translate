@@ -8,7 +8,6 @@ use Tanmuhittin\LaravelGoogleTranslate\Commands\TranslateFilesCommand;
 
 class LaravelGoogleTranslateServiceProvider extends ServiceProvider
 {
-    protected $defer = true;
     /**
      * Bootstrap the application services.
      *
