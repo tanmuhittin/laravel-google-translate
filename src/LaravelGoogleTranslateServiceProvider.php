@@ -17,7 +17,7 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                TransateFilesCommand::class
+                TranslateFilesCommand::class
             ]);
         }
         $this->publishes([
