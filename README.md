@@ -24,7 +24,7 @@ php artisan translate:files --baselocale=tr --exclude=auth,passwords
 https://stackoverflow.com/a/31830614
 
 ## suggested packages
-This package can be used with https://github.com/andrey-helldar/laravel-lang-publisher where you have additional translation files to be translated may languages
+This package can be used with https://github.com/andrey-helldar/laravel-lang-publisher where you have additional translation files to be translated to all other languages
 
 ## finally
 Thank you for using laravel-google-translate :)
