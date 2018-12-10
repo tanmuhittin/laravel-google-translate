@@ -12,6 +12,11 @@
       ]
     }
   },
+  "autoload": {
+    "psr-0": {
+      "Tanmuhittin\\LaravelGoogleTranslate": "src/"
+    }
+  },
   "authors": [
     {
       "name": "Muhittin Tan",
