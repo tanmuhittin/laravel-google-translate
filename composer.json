@@ -2,7 +2,7 @@
   "name": "tanmuhittin/laravel-google-translate",
   "description": "Translate translation files to other languages using google translate api",
   "require": {
-    "laravel/laravel": ">=5.1",
+    "illuminate/console": ">=5.1",
     "php": ">=7.0.0"
   },
   "extra": {
