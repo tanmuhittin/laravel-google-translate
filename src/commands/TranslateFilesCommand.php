@@ -33,7 +33,7 @@ class TranslateFilesCommand extends Command
     }
 
     /**
-     * Execute the console command.
+     * Translate from base language to other available languages
      *
      * @return mixed
      */
@@ -70,9 +70,16 @@ class TranslateFilesCommand extends Command
         $this->line("Translations Complete.");
     }
 
+    /**
+     * Translate given $text from base_locale to $locale
+     * @param $text
+     * @param $locale
+     * @return mixed
+     * @throws \Exception
+     */
     private function translate($text,$locale){
         $apiKey = config('laravel_google_translate.google_translate_api_key');
-        $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source=en&target='.$locale;
+        $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source='.$this->base_locale.'&target='.$locale;
         $handle = curl_init();
         curl_setopt($handle, CURLOPT_URL, $url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
