@@ -1,0 +1,22 @@
+{
+  "name": "tanmuhittin/laravel-google-translate",
+  "description": "Translate translation files to other languages using google translate api",
+  "require": {
+    "laravel/laravel": "^5.7",
+    "php": ">=7.0.0"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Tanmuhittin\\LaravelGoogleTranslate\\LaravelGoogleTranslateServiceProvider"
+      ]
+    }
+  },
+  "authors": [
+    {
+      "name": "Muhittin Tan",
+      "email": "tanmuhittin@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev"
+}
