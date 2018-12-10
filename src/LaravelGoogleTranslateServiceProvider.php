@@ -3,7 +3,10 @@
 namespace Tanmuhittin\LaravelGoogleTranslate;
 
 
-class LaravelGoogleTranslateServiceProvider
+use Illuminate\Support\ServiceProvider;
+use Tanmuhittin\LaravelGoogleTranslate\Commands\TranslateFilesCommand;
+
+class LaravelGoogleTranslateServiceProvider extends ServiceProvider
 {
     protected $defer = true;
     /**

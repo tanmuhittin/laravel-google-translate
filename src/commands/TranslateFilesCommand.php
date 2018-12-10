@@ -1,6 +1,6 @@
 <?php
 
-namespace Tanmuhittin\LaravelGoogleTranslate;
+namespace Tanmuhittin\LaravelGoogleTranslate\Commands;
 
 use Illuminate\Console\Command;
 
