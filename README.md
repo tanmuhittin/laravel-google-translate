@@ -3,7 +3,7 @@ Translate translation files (under /resources/lang) from specified base locale t
 
 ## installation
 ```console
-composer require tanmuhittin/laravel-google-translate
+composer require tanmuhittin/laravel-google-translate --dev
 php artisan vendor:publish --provider=Tanmuhittin\LaravelGoogleTranslate\LaravelGoogleTranslateServiceProvider
 ```
 
