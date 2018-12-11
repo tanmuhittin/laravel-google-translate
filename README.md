@@ -9,6 +9,10 @@ php artisan vendor:publish --provider=Tanmuhittin\LaravelGoogleTranslate\Laravel
 
 Edit config/laravel_google_translate.php and add your Google Translate API key.
 
+```console
+php artisan config:cache
+```
+
 Then you can run
 
 ```console
@@ -29,6 +33,7 @@ This package can be used with https://github.com/andrey-helldar/laravel-lang-pub
 ## todo
 * Specify target locales
 * Add option to prevent overwrite or visa versa
+* Google Translate API comes with limits. This package translates each item one by one. Find a way to bulk translate.
 
 ## finally
 Thank you for using laravel-google-translate :)
