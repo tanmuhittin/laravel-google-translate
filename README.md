@@ -33,7 +33,7 @@ This package can be used with https://github.com/andrey-helldar/laravel-lang-pub
 ## todo
 * Specify target locales
 * Google Translate API comes with limits. This package translates each item one by one. Find a way to bulk translate.
-* Add option to translate non existing keys only on target locales
+* Add option to prevent overwrite and translate and add new keys to the target locale files
 
 ## finally
 Thank you for using laravel-google-translate :)
