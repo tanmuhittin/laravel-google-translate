@@ -26,5 +26,9 @@ https://stackoverflow.com/a/31830614
 ## suggested packages
 This package can be used with https://github.com/andrey-helldar/laravel-lang-publisher where you have additional translation files to be translated to all other languages
 
+## todo
+* Specify target locales
+* Add option to prevent overwrite or visa versa
+
 ## finally
 Thank you for using laravel-google-translate :)
