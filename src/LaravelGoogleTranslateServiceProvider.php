@@ -21,7 +21,7 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
             ]);
         }
         $this->publishes([
-            __DIR__.'./laravel_google_translate.php' => config_path('laravel_google_translate.php'),
+            __DIR__.'/laravel_google_translate.php' => config_path('laravel_google_translate.php'),
         ]);
     }
 
