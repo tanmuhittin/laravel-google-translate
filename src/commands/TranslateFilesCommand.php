@@ -90,6 +90,11 @@ class TranslateFilesCommand extends Command
         $responseDecoded = json_decode($response, true);
         curl_close($handle);
 
+        if(isset($responseDecoded['error'])){
+            echo $responseDecoded['error'][0]["message"]."\n";
+            exit;
+        }
+
         return $responseDecoded['data']['translations'][0]['translatedText'];
     }
 }
