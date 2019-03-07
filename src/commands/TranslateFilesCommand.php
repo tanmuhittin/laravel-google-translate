@@ -16,7 +16,7 @@ class TranslateFilesCommand extends Command
      */
     protected $signature = 'translate:files {--baselocale=en : Set the base locale. default is en}
     {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
-    {--targetlocales=tr,de : comma separated list of target locales} {--preventoverwrite : Skip existing target locale files}';
+    {--targetlocales=tr,de : comma separated list of target locales} {--force : Force to overwrite target locale files}';
 
     /**
      * The console command description.
@@ -27,7 +27,7 @@ class TranslateFilesCommand extends Command
     {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
     {--targetlocales=tr,de : comma separated list of target locales}
     {--verbose : Verbose each translation} 
-    {--preventoverwrite : Skip existing target locale files}';
+    {--force : Force to overwrite target locale files}';
 
     /**
      * Create a new command instance.
@@ -112,8 +112,8 @@ class TranslateFilesCommand extends Command
     {
         $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
         foreach ($files as $file) {
-            if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))  && $this->option('preventoverwrite')) {
-                $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Skipping (--preventoverwrite)');
+            if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))  && !$this->option('force')) {
+                $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Skipping (use --force to update this file)');
                 return;
             }
             $file = substr($file, 0, -4);
@@ -144,8 +144,8 @@ class TranslateFilesCommand extends Command
     private function translate_json_array_file($locale)
     {
         if (file_exists(resource_path('lang/' . $locale . '.json'))) {
-            if (file_exists(resource_path('lang/' . $locale . '.json'))  && $this->option('preventoverwrite')) {
-                $this->line('File already exists: lang/' . $locale . '.json. Skipping (--preventoverwrite)');
+            if (file_exists(resource_path('lang/' . $locale . '.json'))  && !$this->option('force')) {
+                $this->line('File already exists: lang/' . $locale . '.json. Skipping (use --force to update this file)');
                 return;
             }
             $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
