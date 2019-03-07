@@ -12,14 +12,19 @@ class TranslateFilesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'translate:files {--baselocale=en : Set the base locale. default is en} {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}';
+    protected $signature = 'translate:files {--baselocale=en : Set the base locale. default is en}
+    {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
+    {--targetlocales=tr,de : comma separated list of target locales}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Translate Translation files';
+    protected $description = 'Translate Translation files. translate:files {--baselocale=en : Set the base locale. default is en}
+    {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
+    {--targetlocales=tr,de : comma separated list of target locales}
+    {--verbose : Verbose each translation}';
 
     /**
      * Create a new command instance.
@@ -41,6 +46,10 @@ class TranslateFilesCommand extends Command
     {
         $this->base_locale = $this->option('baselocale');
         $this->excluded_files = explode(",", $this->option('exclude'));
+        $target_locales = explode(",", $this->option('targetlocales'));
+        if(count($target_locales)>0){
+            $this->locales = $target_locales;
+        }
         $bar = $this->output->createProgressBar((count($this->locales) - 1));
         $bar->start();
         foreach ($this->locales as $locale) {
@@ -56,6 +65,9 @@ class TranslateFilesCommand extends Command
                 $new_lang = [];
                 foreach ($to_be_translateds as $key => $to_be_translated) {
                     $new_lang[$key] = addslashes(self::translate($to_be_translated, $locale));
+                    if($this->option('verbose')){
+                        $this->line($to_be_translated.' : '.$new_lang[$key]);
+                    }
                 }
                 //save new lang to new file
                 $file = fopen(resource_path('lang/' . $locale . '/' . $file . '.php'), "w+");
