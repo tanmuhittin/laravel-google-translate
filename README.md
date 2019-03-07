@@ -20,7 +20,7 @@ php artisan translate:files
 ```
 or specify excluded files and base locale
 ```console
-php artisan translate:files --baselocale=tr --exclude=auth,passwords
+php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetlocales=en,de --verbose --preventoverwrite
 ```
 ## potential issues
 

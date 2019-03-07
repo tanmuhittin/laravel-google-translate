@@ -14,7 +14,7 @@ class TranslateFilesCommand extends Command
      */
     protected $signature = 'translate:files {--baselocale=en : Set the base locale. default is en}
     {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
-    {--targetlocales=tr,de : comma separated list of target locales}';
+    {--targetlocales=tr,de : comma separated list of target locales} {--preventoverwrite : Skip existing target locale files}';
 
     /**
      * The console command description.
@@ -108,6 +108,7 @@ class TranslateFilesCommand extends Command
         $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
         foreach ($files as $file) {
             if(file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))  && $this->option('preventoverwrite') ){
+                $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Skipping (--preventoverwrite)');
                 return;
             }
             $file = substr($file, 0, -4);
@@ -137,6 +138,7 @@ class TranslateFilesCommand extends Command
     private function translate_json_array_file($locale){
         if (file_exists(resource_path('lang/' . $locale . '.json'))) {
             if(file_exists(resource_path('lang/' . $locale . '.json'))  && $this->option('preventoverwrite') ){
+                $this->line('File already exists: lang/' . $locale . '.json. Skipping (--preventoverwrite)');
                 return;
             }
             $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
