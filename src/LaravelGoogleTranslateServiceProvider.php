@@ -2,7 +2,6 @@
 
 namespace Tanmuhittin\LaravelGoogleTranslate;
 
-
 use Illuminate\Support\ServiceProvider;
 use Tanmuhittin\LaravelGoogleTranslate\Commands\TranslateFilesCommand;
 

@@ -1,5 +1,5 @@
 # laravel-google-translate
-Translate translation files (under /resources/lang) from specified base locale to all other available languages using google translate api
+Translate translation files (under /resources/lang) from specified base locale to all other available languages using google translate api https://cloud.google.com/translate/
 
 ## installation
 ```console
@@ -28,10 +28,16 @@ php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetloc
 https://stackoverflow.com/a/31830614
 
 ## suggested packages
-This package can be used with https://github.com/andrey-helldar/laravel-lang-publisher where you have additional translation files to be translated to all other languages
+This package can be used with https://github.com/andrey-helldar/laravel-lang-publisher.
+Example Scenario: <br>
+You would like to add another language support where you have other translation files in addition to base translation files of Laravel. So follow the steps below.
+* Add base Laravel translation files using https://github.com/andrey-helldar/laravel-lang-publisher
+* Translate your custom files using this package
+
+Done <br>
 
 ## todo
-* Tranlating one by one takes a long time. Use bulk translate
+* Translating one by one takes a long time. Use bulk translate
 
 ## finally
 Thank you for using laravel-google-translate :)

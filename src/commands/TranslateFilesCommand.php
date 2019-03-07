@@ -6,7 +6,9 @@ use Illuminate\Console\Command;
 
 class TranslateFilesCommand extends Command
 {
-    public $locales, $base_locale, $excluded_files;
+    public $locales;
+    public $base_locale;
+    public $excluded_files;
     /**
      * The name and signature of the console command.
      *
@@ -55,8 +57,9 @@ class TranslateFilesCommand extends Command
         $bar->start();
         // loop target locales
         foreach ($this->locales as $locale) {
-            if ($locale == $this->base_locale)
+            if ($locale == $this->base_locale) {
                 continue;
+            }
             $this->line($this->base_locale . " -> " . $locale . " translating...");
             if (is_dir(resource_path('lang/' . $locale))) {
                 $this->translate_php_array_files($locale);
@@ -92,8 +95,9 @@ class TranslateFilesCommand extends Command
 
         if (isset($responseDecoded['error'])) {
             $this->error("Google Translate API returned error");
-            if (isset($responseDecoded["error"]["message"]))
+            if (isset($responseDecoded["error"]["message"])) {
                 $this->error($responseDecoded["error"]["message"]);
+            }
             exit;
         }
 
@@ -104,16 +108,18 @@ class TranslateFilesCommand extends Command
      * @param $locale
      * @throws \Exception
      */
-    private function translate_php_array_files($locale){
+    private function translate_php_array_files($locale)
+    {
         $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
         foreach ($files as $file) {
-            if(file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))  && $this->option('preventoverwrite') ){
+            if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))  && $this->option('preventoverwrite')) {
                 $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Skipping (--preventoverwrite)');
                 return;
             }
             $file = substr($file, 0, -4);
-            if (in_array($file, $this->excluded_files))
+            if (in_array($file, $this->excluded_files)) {
                 continue;
+            }
             $to_be_translateds = trans($file, [], $this->base_locale);
             $new_lang = [];
             foreach ($to_be_translateds as $key => $to_be_translated) {
@@ -135,9 +141,10 @@ class TranslateFilesCommand extends Command
      * @param $locale
      * @throws \Exception
      */
-    private function translate_json_array_file($locale){
+    private function translate_json_array_file($locale)
+    {
         if (file_exists(resource_path('lang/' . $locale . '.json'))) {
-            if(file_exists(resource_path('lang/' . $locale . '.json'))  && $this->option('preventoverwrite') ){
+            if (file_exists(resource_path('lang/' . $locale . '.json'))  && $this->option('preventoverwrite')) {
                 $this->line('File already exists: lang/' . $locale . '.json. Skipping (--preventoverwrite)');
                 return;
             }
