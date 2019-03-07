@@ -18,7 +18,7 @@ Then you can run
 ```console
 php artisan translate:files
 ```
-or specify excluded files and base locale
+or specify base locale, excluded files, target locales. If you like to see the translated texts use --verbose option. --preventoverwrite options skips existing target files.
 ```console
 php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetlocales=en,de --verbose --preventoverwrite
 ```
