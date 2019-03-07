@@ -47,7 +47,7 @@ class TranslateFilesCommand extends Command
         $this->base_locale = $this->option('baselocale');
         $this->excluded_files = explode(",", $this->option('exclude'));
         $target_locales = explode(",", $this->option('targetlocales'));
-        if(count($target_locales)>0){
+        if (count($target_locales) > 0) {
             $this->locales = $target_locales;
         }
         $bar = $this->output->createProgressBar((count($this->locales) - 1));
@@ -56,22 +56,45 @@ class TranslateFilesCommand extends Command
             if ($locale == $this->base_locale)
                 continue;
             $this->line($this->base_locale . " -> " . $locale . " translating...");
-            $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
-            foreach ($files as $file) {
-                $file = substr($file, 0, -4);
-                if (in_array($file, $this->excluded_files))
-                    continue;
-                $to_be_translateds = trans($file, [], $this->base_locale);
+            // translate php array file contents
+            if (is_dir(resource_path('lang/' . $locale))) {
+                $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
+                foreach ($files as $file) {
+                    $file = substr($file, 0, -4);
+                    if (in_array($file, $this->excluded_files))
+                        continue;
+                    $to_be_translateds = trans($file, [], $this->base_locale);
+                    $new_lang = [];
+                    foreach ($to_be_translateds as $key => $to_be_translated) {
+                        $new_lang[$key] = addslashes(self::translate($to_be_translated, $locale));
+                        if ($this->option('verbose')) {
+                            $this->line($to_be_translated . ' : ' . $new_lang[$key]);
+                        }
+                    }
+                    //save new lang to new file
+                    $file = fopen(resource_path('lang/' . $locale . '/' . $file . '.php'), "w+");
+                    $write_text = "<?php \nreturn " . var_export($new_lang, true) . ";";
+                    fwrite($file, $write_text);
+                    fclose($file);
+                }
+            }
+            // translate json translation files
+            if (file_exists(resource_path('lang/' . $locale . '.json'))) {
+                $this->line('json translating...');
+                //$file = fopen(resource_path('lang/' . $locale . '/' . $file . '.php'), "w+");
+                $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
+                $json_to_be_translateds = json_decode($json_translations_string, true);
+                var_dump($json_to_be_translateds);
                 $new_lang = [];
-                foreach ($to_be_translateds as $key => $to_be_translated) {
-                    $new_lang[$key] = addslashes(self::translate($to_be_translated, $locale));
-                    if($this->option('verbose')){
-                        $this->line($to_be_translated.' : '.$new_lang[$key]);
+                foreach ($json_to_be_translateds as $key => $to_be_translated) {
+                    $new_lang[$key] = addslashes(self::translate($key, $locale));
+                    if ($this->option('verbose')) {
+                        $this->line($to_be_translated . ' : ' . $new_lang[$key]);
                     }
                 }
                 //save new lang to new file
-                $file = fopen(resource_path('lang/' . $locale . '/' . $file . '.php'), "w+");
-                $write_text = "<?php \nreturn " . var_export($new_lang, true) . ";";
+                $file = fopen(resource_path('lang/' . $locale . '.json'), "w+");
+                $write_text = json_encode($new_lang, JSON_UNESCAPED_UNICODE);
                 fwrite($file, $write_text);
                 fclose($file);
             }
@@ -105,7 +128,7 @@ class TranslateFilesCommand extends Command
 
         if (isset($responseDecoded['error'])) {
             $this->error("Google Translate API returned error");
-            if(isset($responseDecoded["error"]["message"]))
+            if (isset($responseDecoded["error"]["message"]))
                 $this->error($responseDecoded["error"]["message"]);
             exit;
         }
