@@ -31,9 +31,7 @@ https://stackoverflow.com/a/31830614
 This package can be used with https://github.com/andrey-helldar/laravel-lang-publisher where you have additional translation files to be translated to all other languages
 
 ## todo
-* Specify target locales
-* Google Translate API comes with limits. This package translates each item one by one. Find a way to bulk translate.
-* Add option to prevent overwrite and translate and add new keys to the target locale files
+* Tranlating one by one takes a long time. Use bulk translate
 
 ## finally
 Thank you for using laravel-google-translate :)
