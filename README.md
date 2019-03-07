@@ -1,5 +1,5 @@
 # laravel-google-translate
-Translate translation files (under /resources/lang) from specified base locale to all other available languages using google translate api https://cloud.google.com/translate/
+Translate translation files (under /resources/lang) and lang.json files from specified base locale to all other available languages using google translate api https://cloud.google.com/translate/
 
 ## installation
 ```console
@@ -18,9 +18,9 @@ Then you can run
 ```console
 php artisan translate:files
 ```
-or specify base locale, excluded files, target locales. If you like to see the translated texts use --verbose option. --preventoverwrite options skips existing target files.
+or specify base locale, excluded files, target locales. If you like to see the translated texts use --verbose option. --force option enables overwrites to existing target files.
 ```console
-php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetlocales=en,de --verbose --preventoverwrite
+php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetlocales=en,de --verbose --force
 ```
 ## potential issues
 
