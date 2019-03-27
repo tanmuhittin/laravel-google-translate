@@ -14,11 +14,9 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                TranslateFilesCommand::class
-            ]);
-        }
+        $this->commands([
+            TranslateFilesCommand::class
+        ]);
         $this->publishes([
             __DIR__.'/laravel_google_translate.php' => config_path('laravel_google_translate.php'),
         ]);
