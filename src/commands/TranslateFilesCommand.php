@@ -9,6 +9,7 @@ class TranslateFilesCommand extends Command
     public $locales;
     public $base_locale;
     public $excluded_files;
+    public $target_files;
     /**
      * The name and signature of the console command.
      *
@@ -16,7 +17,8 @@ class TranslateFilesCommand extends Command
      */
     protected $signature = 'translate:files {--baselocale=en : Set the base locale. default is en}
     {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
-    {--targetlocales=tr,de : comma separated list of target locales} {--force : Force to overwrite target locale files}';
+    {--targetlocales= : comma separated list of target locales} {--force : Force to overwrite target locale files} 
+    {--targetfiles= : target files}';
 
     /**
      * The console command description.
@@ -27,7 +29,8 @@ class TranslateFilesCommand extends Command
     {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
     {--targetlocales=tr,de : comma separated list of target locales}
     {--verbose : Verbose each translation} 
-    {--force : Force to overwrite target locale files}';
+    {--force : Force to overwrite target locale files}
+    {--targetfiles=file1,file2 : Only translate specific files}';
 
     /**
      * Create a new command instance.
@@ -48,20 +51,22 @@ class TranslateFilesCommand extends Command
     public function handle()
     {
         $this->base_locale = $this->option('baselocale');
+        $this->target_files = array_filter(explode(",", $this->option('targetfiles')));
         $this->excluded_files = explode(",", $this->option('exclude'));
-        $target_locales = explode(",", $this->option('targetlocales'));
+        $target_locales = array_filter(explode(",", $this->option('targetlocales')));
         if (count($target_locales) > 0) {
             $this->locales = $target_locales;
         }
         $bar = $this->output->createProgressBar((count($this->locales) - 1));
         $bar->start();
         // loop target locales
+        $this->line("");
         foreach ($this->locales as $locale) {
             if ($locale == $this->base_locale) {
                 continue;
             }
-            $this->line($this->base_locale . " -> " . $locale . " translating...");
-            if (is_dir(resource_path('lang/' . $locale))) {
+            if (is_dir(resource_path('lang/' . $locale)) && $locale!=='vendor') {
+                $this->line($this->base_locale . " -> " . $locale . " translating...");
                 $this->translate_php_array_files($locale);
             }
             $this->translate_json_array_file($locale);
@@ -98,6 +103,7 @@ class TranslateFilesCommand extends Command
             if (isset($responseDecoded["error"]["message"])) {
                 $this->error($responseDecoded["error"]["message"]);
             }
+            var_dump($responseDecoded);
             exit;
         }
 
@@ -111,6 +117,10 @@ class TranslateFilesCommand extends Command
     private function translate_php_array_files($locale)
     {
         $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
+
+        if(count($this->target_files) > 0){
+            $files = $this->target_files;
+        }
         foreach ($files as $file) {
             if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))  && !$this->option('force')) {
                 $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Skipping (use --force to update this file)');
