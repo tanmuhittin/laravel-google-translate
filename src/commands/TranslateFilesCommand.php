@@ -3,6 +3,7 @@
 namespace Tanmuhittin\LaravelGoogleTranslate\Commands;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Finder\Finder; //require
 
 class TranslateFilesCommand extends Command
 {
@@ -159,25 +160,98 @@ class TranslateFilesCommand extends Command
      */
     private function translate_json_array_file($locale)
     {
-        if (file_exists(resource_path('lang/' . $locale . '.json'))) {
-            if (file_exists(resource_path('lang/' . $locale . '.json')) && !$this->option('force')) {
-                $this->line('File already exists: lang/' . $locale . '.json. Skipping (use --force to update this file)');
-                return;
-            }
-            $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
-            $json_to_be_translateds = json_decode($json_translations_string, true);
-            $new_lang = [];
-            foreach ($json_to_be_translateds as $key => $to_be_translated) {
-                $new_lang[$key] = addslashes(self::translate($key, $locale));
-                if ($this->option('verbose')) {
-                    $this->line($to_be_translated . ' : ' . $new_lang[$key]);
+        $groupKeys  = [];
+        $stringKeys = [];
+        $functions  = [
+            'trans',
+            'trans_choice',
+            'Lang::get',
+            'Lang::choice',
+            'Lang::trans',
+            'Lang::transChoice',
+            '@lang',
+            '@choice',
+            '__',
+            '$trans.get',
+        ];
+        $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
+            "[^\w|>]" .                          // Must not have an alphanum or _ or > before real method
+            '(' . implode( '|', $functions ) . ')' .  // Must start with one of the functions
+            "\(" .                               // Match opening parenthesis
+            "[\'\"]" .                           // Match " or '
+            '(' .                                // Start a new group to match:
+            '[a-zA-Z0-9_-]+' .               // Must start with group
+            "([.](?! )[^\1)]+)+" .             // Be followed by one or more items/keys
+            ')' .                                // Close group
+            "[\'\"]" .                           // Closing quote
+            "[\),]";                            // Close parentheses or new parameter
+        $stringPattern =
+            "[^\w]" .                                     // Must not have an alphanum before real method
+            '(' . implode( '|', $functions ) . ')' .             // Must start with one of the functions
+            "\(" .                                          // Match opening parenthesis
+            "(?P<quote>['\"])" .                            // Match " or ' and store in {quote}
+            "(?P<string>(?:\\\k{quote}|(?!\k{quote}).)*)" . // Match any string that can be {quote} escaped
+            "\k{quote}" .                                   // Match " or ' previously matched
+            "[\),]";                                       // Close parentheses or new parameter
+        $finder = new Finder();
+        $finder->in( base_path() )->exclude( 'storage' )->exclude( 'vendor' )->name( '*.php' )->name( '*.twig' )->name( '*.vue' )->files();
+        /** @var \Symfony\Component\Finder\SplFileInfo $file */
+        foreach ( $finder as $file ) {
+            // Search the current file for the pattern
+            if ( preg_match_all( "/$groupPattern/siU", $file->getContents(), $matches ) ) {
+                // Get all matches
+                foreach ( $matches[ 2 ] as $key ) {
+                    $groupKeys[] = $key;
                 }
             }
-            //save new lang to new file
-            $file = fopen(resource_path('lang/' . $locale . '.json'), "w+");
-            $write_text = json_encode($new_lang, JSON_UNESCAPED_UNICODE);
-            fwrite($file, $write_text);
-            fclose($file);
+            if ( preg_match_all( "/$stringPattern/siU", $file->getContents(), $matches ) ) {
+                foreach ( $matches[ 'string' ] as $key ) {
+                    if ( preg_match( "/(^[a-zA-Z0-9_-]+([.][^\1)\ ]+)+$)/siU", $key, $groupMatches ) ) {
+                        // group{.group}.key format, already in $groupKeys but also matched here
+                        // do nothing, it has to be treated as a group
+                        continue;
+                    }
+                    //TODO: This can probably be done in the regex, but I couldn't do it.
+                    //skip keys which contain namespacing characters, unless they also contain a
+                    //space, which makes it JSON.
+                    if ( !( mb_strpos( $key, '::' ) !== FALSE && mb_strpos( $key, '.' ) !==  FALSE )
+                        || mb_strpos( $key, ' ' ) !== FALSE ) {
+                        $stringKeys[] = $key;
+                    }
+                }
+            }
         }
+        // Remove duplicates
+        $groupKeys  = array_unique( $groupKeys );
+        $stringKeys = array_unique( $stringKeys );
+        // Add the translations to the database, if not existing.
+        /*foreach ( $groupKeys as $key ) {
+            // Split the group and item
+            list( $group, $item ) = explode( '.', $key, 2 );
+            $this->missingKey( '', $group, $item );
+        }
+        */
+        $new_lang = [];
+        $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
+        $json_existing_translations = json_decode($json_translations_string, true);
+        foreach ($stringKeys as $to_be_translated){
+            //check existing translations
+            if(isset($json_existing_translations[$to_be_translated]) &&
+                $json_existing_translations[$to_be_translated]!='' &&
+                !$this->options('force'))
+            {
+                $new_lang[$to_be_translated] = $json_existing_translations[$to_be_translated];
+                $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$to_be_translated]);
+                continue;
+            }
+            $new_lang[$to_be_translated] = addslashes(self::translate($to_be_translated, $locale));
+            if ($this->option('verbose')) {
+                $this->line($to_be_translated . ' : ' . $new_lang[$key]);
+            }
+        }
+        $file = fopen(resource_path('lang/' . $locale . '.json'), "w+");
+        $write_text = json_encode($new_lang, JSON_UNESCAPED_UNICODE);
+        fwrite($file, $write_text);
+        fclose($file);
     }
 }
