@@ -122,12 +122,12 @@ class TranslateFilesCommand extends Command
             $files = $this->target_files;
         }
         foreach ($files as $file) {
+            $file = substr($file, 0, -4);
             $already_translateds = [];
             if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))) { //&& !$this->option('force')
                 $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Checking missing translations');
                 $already_translateds = trans($file, [], $locale);
             }
-            $file = substr($file, 0, -4);
             if (in_array($file, $this->excluded_files)) {
                 continue;
             }
