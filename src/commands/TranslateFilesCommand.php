@@ -44,9 +44,7 @@ class TranslateFilesCommand extends Command
     }
 
     /**
-     * Translate from base language to other available languages
-     *
-     * @return mixed
+     * @throws \Exception
      */
     public function handle()
     {
@@ -124,7 +122,7 @@ class TranslateFilesCommand extends Command
         foreach ($files as $file) {
             $file = substr($file, 0, -4);
             $already_translateds = [];
-            if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))) { //&& !$this->option('force')
+            if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))) {
                 $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Checking missing translations');
                 $already_translateds = trans($file, [], $locale);
             }
