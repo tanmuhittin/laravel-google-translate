@@ -65,7 +65,7 @@ class TranslateFilesCommand extends Command
             if ($locale == $this->base_locale) {
                 continue;
             }
-            if (is_dir(resource_path('lang/' . $locale)) && $locale!=='vendor') {
+            if (is_dir(resource_path('lang/' . $locale)) && $locale !== 'vendor') {
                 $this->line($this->base_locale . " -> " . $locale . " translating...");
                 $this->translate_php_array_files($locale);
             }
@@ -118,13 +118,14 @@ class TranslateFilesCommand extends Command
     {
         $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
 
-        if(count($this->target_files) > 0){
+        if (count($this->target_files) > 0) {
             $files = $this->target_files;
         }
         foreach ($files as $file) {
-            if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))  && !$this->option('force')) {
-                $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Skipping (use --force to update this file)');
-                return;
+            $already_translateds = [];
+            if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))) { //&& !$this->option('force')
+                $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Checking missing translations');
+                $already_translateds = trans($file, [], $locale);
             }
             $file = substr($file, 0, -4);
             if (in_array($file, $this->excluded_files)) {
@@ -133,6 +134,13 @@ class TranslateFilesCommand extends Command
             $to_be_translateds = trans($file, [], $this->base_locale);
             $new_lang = [];
             foreach ($to_be_translateds as $key => $to_be_translated) {
+                if (isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->option('force')) {
+                    $new_lang[$key] = $already_translateds[$key];
+                    if ($this->option('verbose')) {
+                        $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$key]);
+                    }
+                    continue;
+                }
                 $new_lang[$key] = addslashes(self::translate($to_be_translated, $locale));
                 if ($this->option('verbose')) {
                     $this->line($to_be_translated . ' : ' . $new_lang[$key]);
@@ -154,7 +162,7 @@ class TranslateFilesCommand extends Command
     private function translate_json_array_file($locale)
     {
         if (file_exists(resource_path('lang/' . $locale . '.json'))) {
-            if (file_exists(resource_path('lang/' . $locale . '.json'))  && !$this->option('force')) {
+            if (file_exists(resource_path('lang/' . $locale . '.json')) && !$this->option('force')) {
                 $this->line('File already exists: lang/' . $locale . '.json. Skipping (use --force to update this file)');
                 return;
             }
