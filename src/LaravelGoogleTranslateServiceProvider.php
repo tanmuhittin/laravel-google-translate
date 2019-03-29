@@ -29,6 +29,8 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        if ($this->app['config']->get('laravel_google_translate') === null) {
+            $this->app['config']->set('laravel_google_translate', require __DIR__.'/laravel_google_translate.php');
+        }
     }
 }
