@@ -46,7 +46,7 @@ class TranslateFilesCommand extends Command
     public function handle()
     {
         $this->base_locale = $this->ask('What is base locale?','en');
-        $target_locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key','tr,it')));
+        $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key','tr,it')));
         $should_force = $this->choice('Force overwrite existing translations?',['No','Yes'],'No');
         $this->force = false;
         if($should_force === 'Yes'){
@@ -64,7 +64,7 @@ class TranslateFilesCommand extends Command
             }
             $this->excluded_files = array_filter(explode(",", $this->ask('Are there specific files to exclude?','auth,pagination,validation,passwords')));
         }
-        $should_verbose = $this->choice('Verbose each translation?',['No','Yes'],'No');
+        $should_verbose = $this->choice('Verbose each translation?',['No','Yes'],'Yes');
         $this->verbose = false;
         if($should_verbose === 'Yes'){
             $this->verbose = true;
@@ -73,32 +73,35 @@ class TranslateFilesCommand extends Command
         $this->target_files = array_filter(explode(",", $this->option('targetfiles')));
         $this->excluded_files = explode(",", $this->option('exclude'));
         $target_locales = array_filter(explode(",", $this->option('targetlocales')));*/
-        if (count($target_locales) > 0) {
-            $this->locales = $target_locales;
-        }
         $bar = $this->output->createProgressBar((count($this->locales) - 1));
         $bar->start();
         // loop target locales
-        $this->line("");
         if($this->json){
+            $this->line("");
+            $this->line("Exploring strings...");
             $stringKeys = $this->explore_strings();
+            $this->line('Exploration completed. Let\'s get started');
         }
         foreach ($this->locales as $locale) {
             if ($locale == $this->base_locale) {
                 continue;
             }
+            $this->line("");
+            $this->line($this->base_locale . " -> " . $locale . " translating...");
             if($this->json){
                 $this->translate_json_array_file($locale,$stringKeys);
             }
-            else if (is_dir(resource_path('lang/' . $locale)) && $locale !== 'vendor') {
-                $this->line($this->base_locale . " -> " . $locale . " translating...");
+            else if ($locale !== 'vendor') {
+                if(!is_dir(resource_path('lang/' . $locale))){
+                    mkdir(resource_path('lang/' . $locale));
+                }
                 $this->translate_php_array_files($locale);
             }
             $bar->advance();
         }
         $bar->finish();
         $this->line("");
-        $this->line("Translations Complete.");
+        $this->line("Translations Completed.");
     }
 
     /**
@@ -108,7 +111,7 @@ class TranslateFilesCommand extends Command
      * @return mixed
      * @throws \Exception
      */
-    private function translate($text, $locale)
+    public function translate($text, $locale)
     {
         if(config('laravel_google_translate.google_translate_api_key')){
             return self::translate_via_api_key($text, $locale);
@@ -235,7 +238,6 @@ class TranslateFilesCommand extends Command
         $finder = new Finder();
         $finder->in( base_path() )->exclude( 'storage' )->exclude( 'vendor' )->name( '*.php' )->name( '*.twig' )->name( '*.vue' )->files();
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
-        $this->line("Exploring strings...");
         foreach ( $finder as $file ) {
             // Search the current file for the pattern
             if ( preg_match_all( "/$groupPattern/siU", $file->getContents(), $matches ) ) {
@@ -276,7 +278,6 @@ class TranslateFilesCommand extends Command
      */
     private function translate_json_array_file($locale,$stringKeys)
     {
-        $this->line('Exploration completed. Let\'s get started');
         $new_lang = [];
         $json_existing_translations = [];
         if(file_exists(resource_path('lang/' . $locale . '.json'))){
