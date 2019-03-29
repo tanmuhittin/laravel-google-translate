@@ -19,7 +19,8 @@ class TranslateFilesCommand extends Command
     protected $signature = 'translate:files {--baselocale=en : Set the base locale. default is en}
     {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
     {--targetlocales= : comma separated list of target locales} {--force : Force to overwrite target locale files} 
-    {--targetfiles= : target files}';
+    {--targetfiles= : target files}
+    {--json : explore translations and use json only}';
 
     /**
      * The console command description.
@@ -31,7 +32,8 @@ class TranslateFilesCommand extends Command
     {--targetlocales=tr,de : comma separated list of target locales}
     {--verbose : Verbose each translation} 
     {--force : Force to overwrite target locale files}
-    {--targetfiles=file1,file2 : Only translate specific files}';
+    {--targetfiles=file1,file2 : Only translate specific files}
+    {--json : explore translations and use json only}';
 
     /**
      * Create a new command instance.
@@ -64,11 +66,13 @@ class TranslateFilesCommand extends Command
             if ($locale == $this->base_locale) {
                 continue;
             }
-            if (is_dir(resource_path('lang/' . $locale)) && $locale !== 'vendor') {
+            if($this->option('json')){
+                $this->translate_json_array_file($locale);
+            }
+            else if (is_dir(resource_path('lang/' . $locale)) && $locale !== 'vendor') {
                 $this->line($this->base_locale . " -> " . $locale . " translating...");
                 $this->translate_php_array_files($locale);
             }
-            $this->translate_json_array_file($locale);
             $bar->advance();
         }
         $bar->finish();
@@ -162,18 +166,7 @@ class TranslateFilesCommand extends Command
     {
         $groupKeys  = [];
         $stringKeys = [];
-        $functions  = [
-            'trans',
-            'trans_choice',
-            'Lang::get',
-            'Lang::choice',
-            'Lang::trans',
-            'Lang::transChoice',
-            '@lang',
-            '@choice',
-            '__',
-            '$trans.get',
-        ];
+        $functions  = config('laravel_google_translate.trans_functions');
         $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
             "[^\w|>]" .                          // Must not have an alphanum or _ or > before real method
             '(' . implode( '|', $functions ) . ')' .  // Must start with one of the functions
@@ -222,15 +215,8 @@ class TranslateFilesCommand extends Command
             }
         }
         // Remove duplicates
-        $groupKeys  = array_unique( $groupKeys );
+        $groupKeys  = array_unique( $groupKeys ); // todo: not supporting group keys for now
         $stringKeys = array_unique( $stringKeys );
-        // Add the translations to the database, if not existing.
-        /*foreach ( $groupKeys as $key ) {
-            // Split the group and item
-            list( $group, $item ) = explode( '.', $key, 2 );
-            $this->missingKey( '', $group, $item );
-        }
-        */
         $new_lang = [];
         $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
         $json_existing_translations = json_decode($json_translations_string, true);
