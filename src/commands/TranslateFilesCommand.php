@@ -260,7 +260,7 @@ class TranslateFilesCommand extends Command
             //check existing translations
             if(isset($json_existing_translations[$to_be_translated]) &&
                 $json_existing_translations[$to_be_translated]!='' &&
-                !$this->options('force'))
+                !$this->option('force'))
             {
                 $new_lang[$to_be_translated] = $json_existing_translations[$to_be_translated];
                 $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$to_be_translated]);
