@@ -19,7 +19,8 @@ Then you can run
 php artisan translate:files
 ```
 
-See it on action:
+See it on action:<br>
+
 <img src="http://muhittintan.com/tanmuhittin-laravel-google-translate.gif" alt="laravel-google-translate" />
 
 ## potential issues
