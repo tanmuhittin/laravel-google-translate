@@ -3,7 +3,8 @@
 namespace Tanmuhittin\LaravelGoogleTranslate\Commands;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Finder\Finder; //require
+use Stichoza\GoogleTranslate\GoogleTranslate;
+use Symfony\Component\Finder\Finder;
 
 class TranslateFilesCommand extends Command
 {
@@ -19,7 +20,8 @@ class TranslateFilesCommand extends Command
     protected $signature = 'translate:files {--baselocale=en : Set the base locale. default is en}
     {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
     {--targetlocales= : comma separated list of target locales} {--force : Force to overwrite target locale files} 
-    {--targetfiles= : target files}';
+    {--targetfiles= : target files}
+    {--json : explore translations and use json only}';
 
     /**
      * The console command description.
@@ -31,7 +33,8 @@ class TranslateFilesCommand extends Command
     {--targetlocales=tr,de : comma separated list of target locales}
     {--verbose : Verbose each translation} 
     {--force : Force to overwrite target locale files}
-    {--targetfiles=file1,file2 : Only translate specific files}';
+    {--targetfiles=file1,file2 : Only translate specific files}
+    {--json : explore translations and use json only}';
 
     /**
      * Create a new command instance.
@@ -64,11 +67,13 @@ class TranslateFilesCommand extends Command
             if ($locale == $this->base_locale) {
                 continue;
             }
-            if (is_dir(resource_path('lang/' . $locale)) && $locale !== 'vendor') {
+            if($this->option('json')){
+                $this->translate_json_array_file($locale);
+            }
+            else if (is_dir(resource_path('lang/' . $locale)) && $locale !== 'vendor') {
                 $this->line($this->base_locale . " -> " . $locale . " translating...");
                 $this->translate_php_array_files($locale);
             }
-            $this->translate_json_array_file($locale);
             $bar->advance();
         }
         $bar->finish();
@@ -85,6 +90,33 @@ class TranslateFilesCommand extends Command
      */
     private function translate($text, $locale)
     {
+        if(config('laravel_google_translate.google_translate_api_key')){
+            return self::translate_via_api_key($text, $locale);
+        }else{
+            return self::translate_via_stichoza($text, $locale);
+        }
+    }
+
+    /**
+     * @param $text
+     * @param $locale
+     * @return null|string
+     * @throws \ErrorException
+     */
+    private function translate_via_stichoza($text,$locale){
+        $tr = new GoogleTranslate();
+        $tr->setSource($this->base_locale);
+        $tr->setTarget($locale);
+        return $tr->translate($text);
+    }
+
+    /**
+     * @param $text
+     * @param $locale
+     * @return mixed
+     * @throws \Exception
+     */
+    private function translate_via_api_key($text, $locale){
         $apiKey = config('laravel_google_translate.google_translate_api_key');
         $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source=' . $this->base_locale . '&target=' . $locale;
         $handle = curl_init();
@@ -162,18 +194,7 @@ class TranslateFilesCommand extends Command
     {
         $groupKeys  = [];
         $stringKeys = [];
-        $functions  = [
-            'trans',
-            'trans_choice',
-            'Lang::get',
-            'Lang::choice',
-            'Lang::trans',
-            'Lang::transChoice',
-            '@lang',
-            '@choice',
-            '__',
-            '$trans.get',
-        ];
+        $functions  = config('laravel_google_translate.trans_functions');
         $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
             "[^\w|>]" .                          // Must not have an alphanum or _ or > before real method
             '(' . implode( '|', $functions ) . ')' .  // Must start with one of the functions
@@ -196,6 +217,7 @@ class TranslateFilesCommand extends Command
         $finder = new Finder();
         $finder->in( base_path() )->exclude( 'storage' )->exclude( 'vendor' )->name( '*.php' )->name( '*.twig' )->name( '*.vue' )->files();
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
+        $this->line("Exploring strings...");
         foreach ( $finder as $file ) {
             // Search the current file for the pattern
             if ( preg_match_all( "/$groupPattern/siU", $file->getContents(), $matches ) ) {
@@ -217,23 +239,23 @@ class TranslateFilesCommand extends Command
                     if ( !( mb_strpos( $key, '::' ) !== FALSE && mb_strpos( $key, '.' ) !==  FALSE )
                         || mb_strpos( $key, ' ' ) !== FALSE ) {
                         $stringKeys[] = $key;
+                        if($this->option('verbose')){
+                            $this->line('Found : '.$key);
+                        }
                     }
                 }
             }
         }
         // Remove duplicates
-        $groupKeys  = array_unique( $groupKeys );
+        $groupKeys  = array_unique( $groupKeys ); // todo: not supporting group keys for now add this feature!
         $stringKeys = array_unique( $stringKeys );
-        // Add the translations to the database, if not existing.
-        /*foreach ( $groupKeys as $key ) {
-            // Split the group and item
-            list( $group, $item ) = explode( '.', $key, 2 );
-            $this->missingKey( '', $group, $item );
-        }
-        */
+        $this->line('Exploration completed. Let\'s get started');
         $new_lang = [];
-        $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
-        $json_existing_translations = json_decode($json_translations_string, true);
+        $json_existing_translations = [];
+        if(file_exists(resource_path('lang/' . $locale . '.json'))){
+            $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
+            $json_existing_translations = json_decode($json_translations_string, true);
+        }
         foreach ($stringKeys as $to_be_translated){
             //check existing translations
             if(isset($json_existing_translations[$to_be_translated]) &&
@@ -246,7 +268,7 @@ class TranslateFilesCommand extends Command
             }
             $new_lang[$to_be_translated] = addslashes(self::translate($to_be_translated, $locale));
             if ($this->option('verbose')) {
-                $this->line($to_be_translated . ' : ' . $new_lang[$key]);
+                $this->line($to_be_translated . ' : ' . $new_lang[$to_be_translated]);
             }
         }
         $file = fopen(resource_path('lang/' . $locale . '.json'), "w+");
