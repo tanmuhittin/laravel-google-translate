@@ -45,6 +45,7 @@ class TranslateFilesCommand extends Command
      */
     public function handle()
     {
+        //Collect input
         $this->base_locale = $this->ask('What is base locale?','en');
         $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key','tr,it')));
         $should_force = $this->choice('Force overwrite existing translations?',['No','Yes'],'No');
@@ -69,15 +70,12 @@ class TranslateFilesCommand extends Command
         if($should_verbose === 'Yes'){
             $this->verbose = true;
         }
-        /*$this->base_locale = $this->option('baselocale');
-        $this->target_files = array_filter(explode(",", $this->option('targetfiles')));
-        $this->excluded_files = explode(",", $this->option('exclude'));
-        $target_locales = array_filter(explode(",", $this->option('targetlocales')));*/
-        $bar = $this->output->createProgressBar((count($this->locales) - 1));
+        //Start Translating
+        $bar = $this->output->createProgressBar(count($this->locales));
         $bar->start();
+        $this->line("");
         // loop target locales
         if($this->json){
-            $this->line("");
             $this->line("Exploring strings...");
             $stringKeys = $this->explore_strings();
             $this->line('Exploration completed. Let\'s get started');
@@ -86,7 +84,6 @@ class TranslateFilesCommand extends Command
             if ($locale == $this->base_locale) {
                 continue;
             }
-            $this->line("");
             $this->line($this->base_locale . " -> " . $locale . " translating...");
             if($this->json){
                 $this->translate_json_array_file($locale,$stringKeys);
@@ -98,6 +95,7 @@ class TranslateFilesCommand extends Command
                 $this->translate_php_array_files($locale);
             }
             $bar->advance();
+            $this->line("");
         }
         $bar->finish();
         $this->line("");
