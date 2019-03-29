@@ -1,5 +1,5 @@
 # laravel-google-translate
-Translate translation files (under /resources/lang) and lang.json files from specified base locale to all other available languages using google translate api https://cloud.google.com/translate/
+Translate translation files (under /resources/lang) or lang.json files from specified base locale to other languages using stichoza/google-translate-php or Google Translate API https://cloud.google.com/translate/
 
 ## installation
 ```console
@@ -7,7 +7,7 @@ composer require tanmuhittin/laravel-google-translate --dev
 php artisan vendor:publish --provider=Tanmuhittin\LaravelGoogleTranslate\LaravelGoogleTranslateServiceProvider
 ```
 
-Edit config/laravel_google_translate.php and add your Google Translate API key.
+If you would like to use stichoza/google-translate-php you do not need an API key. If you would like to use Google Translate API, edit config/laravel_google_translate.php and add your Google Translate API key.
 
 ```console
 php artisan config:cache
@@ -30,8 +30,7 @@ https://stackoverflow.com/a/31830614
 
 ## suggested packages
 This package can be used with https://github.com/andrey-helldar/laravel-lang-publisher.
-Example Scenario: <br>
-You would like to add another language support where you have other translation files in addition to base translation files of Laravel. So follow the steps below.
+
 * Add base Laravel translation files using https://github.com/andrey-helldar/laravel-lang-publisher
 * Translate your custom files using this package
 
