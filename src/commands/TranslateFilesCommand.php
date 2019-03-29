@@ -58,7 +58,10 @@ class TranslateFilesCommand extends Command
             $this->json = true;
         }
         if(!$this->json){
-            $this->target_files = array_filter(explode(",", $this->ask('Are there specific target files to translate only?','')));
+            $this->target_files = array_filter(explode(",", $this->ask('Are there specific target files to translate only? ex: file1,file2','')));
+            foreach ($this->target_files as $key=>$target_file){
+                $this->target_files[$key] = $target_file.'.php';
+            }
             $this->excluded_files = array_filter(explode(",", $this->ask('Are there specific files to exclude?','auth,pagination,validation,passwords')));
         }
         $should_verbose = $this->choice('Verbose each translation?',['No','Yes'],'No');
