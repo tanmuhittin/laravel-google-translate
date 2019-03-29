@@ -18,14 +18,7 @@ Then you can run
 ```console
 php artisan translate:files
 ```
-or specify base locale, excluded files, target locales. If you like to see the translated texts use --verbose option. --force option enables overwrites to existing target files.
-```console
-php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetlocales=en,de --verbose --force --targetfiles=test.php,test2.php
-```
-Explore texts and use json file for translations
-```console
-php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetlocales=en,de --verbose --force --targetfiles=test.php,test2.php
-```
+
 ## potential issues
 
 ### SSL certificate problem: unable to get local issuer certificate

@@ -12,29 +12,22 @@ class TranslateFilesCommand extends Command
     public $base_locale;
     public $excluded_files;
     public $target_files;
+    public $json;
+    public $force;
+    public $verbose;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'translate:files {--baselocale=en : Set the base locale. default is en}
-    {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
-    {--targetlocales= : comma separated list of target locales} {--force : Force to overwrite target locale files} 
-    {--targetfiles= : target files}
-    {--json : explore translations and use json only}';
+    protected $signature = 'translate:files';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Translate Translation files. translate:files {--baselocale=en : Set the base locale. default is en}
-    {--exclude=auth,pagination,validation,passwords : comma separated list of excluded files. default is auth,pagination,passwords,validation}
-    {--targetlocales=tr,de : comma separated list of target locales}
-    {--verbose : Verbose each translation} 
-    {--force : Force to overwrite target locale files}
-    {--targetfiles=file1,file2 : Only translate specific files}
-    {--json : explore translations and use json only}';
+    protected $description = 'Translate Translation files. translate:files';
 
     /**
      * Create a new command instance.
@@ -52,10 +45,34 @@ class TranslateFilesCommand extends Command
      */
     public function handle()
     {
-        $this->base_locale = $this->option('baselocale');
+        $this->base_locale = $this->ask('What is base locale?','en');
+        $target_locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key','tr,it')));
+        $should_force = $this->choice('Force overwrite existing translations?',['No','Yes'],'No');
+        $this->force = false;
+        if($should_force === 'Yes'){
+            $this->force = true;
+        }
+        $mode = $this->choice('Use text exploration and json translation or php files?',['json','php'],'php');
+        $this->json = false;
+        if($mode === 'json'){
+            $this->json = true;
+        }
+        if(!$this->json){
+            $this->target_files = array_filter(explode(",", $this->ask('Are there specific target files to translate only? ex: file1,file2','')));
+            foreach ($this->target_files as $key=>$target_file){
+                $this->target_files[$key] = $target_file.'.php';
+            }
+            $this->excluded_files = array_filter(explode(",", $this->ask('Are there specific files to exclude?','auth,pagination,validation,passwords')));
+        }
+        $should_verbose = $this->choice('Verbose each translation?',['No','Yes'],'No');
+        $this->verbose = false;
+        if($should_verbose === 'Yes'){
+            $this->verbose = true;
+        }
+        /*$this->base_locale = $this->option('baselocale');
         $this->target_files = array_filter(explode(",", $this->option('targetfiles')));
         $this->excluded_files = explode(",", $this->option('exclude'));
-        $target_locales = array_filter(explode(",", $this->option('targetlocales')));
+        $target_locales = array_filter(explode(",", $this->option('targetlocales')));*/
         if (count($target_locales) > 0) {
             $this->locales = $target_locales;
         }
@@ -63,12 +80,15 @@ class TranslateFilesCommand extends Command
         $bar->start();
         // loop target locales
         $this->line("");
+        if($this->json){
+            $stringKeys = $this->explore_strings();
+        }
         foreach ($this->locales as $locale) {
             if ($locale == $this->base_locale) {
                 continue;
             }
-            if($this->option('json')){
-                $this->translate_json_array_file($locale);
+            if($this->json){
+                $this->translate_json_array_file($locale,$stringKeys);
             }
             else if (is_dir(resource_path('lang/' . $locale)) && $locale !== 'vendor') {
                 $this->line($this->base_locale . " -> " . $locale . " translating...");
@@ -165,15 +185,15 @@ class TranslateFilesCommand extends Command
             $to_be_translateds = trans($file, [], $this->base_locale);
             $new_lang = [];
             foreach ($to_be_translateds as $key => $to_be_translated) {
-                if (isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->option('force')) {
+                if (isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->force) {
                     $new_lang[$key] = $already_translateds[$key];
-                    if ($this->option('verbose')) {
+                    if ($this->verbose) {
                         $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$key]);
                     }
                     continue;
                 }
                 $new_lang[$key] = addslashes(self::translate($to_be_translated, $locale));
-                if ($this->option('verbose')) {
+                if ($this->verbose) {
                     $this->line($to_be_translated . ' : ' . $new_lang[$key]);
                 }
             }
@@ -187,11 +207,9 @@ class TranslateFilesCommand extends Command
     }
 
     /**
-     * @param $locale
-     * @throws \Exception
+     * @return array
      */
-    private function translate_json_array_file($locale)
-    {
+    private function explore_strings(){
         $groupKeys  = [];
         $stringKeys = [];
         $functions  = config('laravel_google_translate.trans_functions');
@@ -239,7 +257,7 @@ class TranslateFilesCommand extends Command
                     if ( !( mb_strpos( $key, '::' ) !== FALSE && mb_strpos( $key, '.' ) !==  FALSE )
                         || mb_strpos( $key, ' ' ) !== FALSE ) {
                         $stringKeys[] = $key;
-                        if($this->option('verbose')){
+                        if($this->verbose){
                             $this->line('Found : '.$key);
                         }
                     }
@@ -249,6 +267,15 @@ class TranslateFilesCommand extends Command
         // Remove duplicates
         $groupKeys  = array_unique( $groupKeys ); // todo: not supporting group keys for now add this feature!
         $stringKeys = array_unique( $stringKeys );
+        return $stringKeys;
+    }
+
+    /**
+     * @param $locale
+     * @throws \Exception
+     */
+    private function translate_json_array_file($locale,$stringKeys)
+    {
         $this->line('Exploration completed. Let\'s get started');
         $new_lang = [];
         $json_existing_translations = [];
@@ -260,14 +287,14 @@ class TranslateFilesCommand extends Command
             //check existing translations
             if(isset($json_existing_translations[$to_be_translated]) &&
                 $json_existing_translations[$to_be_translated]!='' &&
-                !$this->option('force'))
+                !$this->force)
             {
                 $new_lang[$to_be_translated] = $json_existing_translations[$to_be_translated];
                 $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$to_be_translated]);
                 continue;
             }
             $new_lang[$to_be_translated] = addslashes(self::translate($to_be_translated, $locale));
-            if ($this->option('verbose')) {
+            if ($this->verbose) {
                 $this->line($to_be_translated . ' : ' . $new_lang[$to_be_translated]);
             }
         }
