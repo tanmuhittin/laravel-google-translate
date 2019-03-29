@@ -22,6 +22,10 @@ or specify base locale, excluded files, target locales. If you like to see the t
 ```console
 php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetlocales=en,de --verbose --force --targetfiles=test.php,test2.php
 ```
+Explore texts and use json file for translations
+```console
+php artisan translate:files --baselocale=tr --exclude=auth,passwords --targetlocales=en,de --verbose --force --targetfiles=test.php,test2.php
+```
 ## potential issues
 
 ### SSL certificate problem: unable to get local issuer certificate
@@ -37,7 +41,9 @@ You would like to add another language support where you have other translation 
 Done <br>
 
 ## todo
-* Translating one by one takes a long time. Use bulk translate
+* Handle vendor translations too
+* Prepare Web Interface
+* Add other translation API support (Bing, Yandex...)
 
 ## finally
 Thank you for using laravel-google-translate :)
