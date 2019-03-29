@@ -80,12 +80,15 @@ class TranslateFilesCommand extends Command
         $bar->start();
         // loop target locales
         $this->line("");
+        if($this->json){
+            $stringKeys = $this->explore_strings();
+        }
         foreach ($this->locales as $locale) {
             if ($locale == $this->base_locale) {
                 continue;
             }
             if($this->json){
-                $this->translate_json_array_file($locale);
+                $this->translate_json_array_file($locale,$stringKeys);
             }
             else if (is_dir(resource_path('lang/' . $locale)) && $locale !== 'vendor') {
                 $this->line($this->base_locale . " -> " . $locale . " translating...");
@@ -204,11 +207,9 @@ class TranslateFilesCommand extends Command
     }
 
     /**
-     * @param $locale
-     * @throws \Exception
+     * @return array
      */
-    private function translate_json_array_file($locale)
-    {
+    private function explore_strings(){
         $groupKeys  = [];
         $stringKeys = [];
         $functions  = config('laravel_google_translate.trans_functions');
@@ -266,6 +267,15 @@ class TranslateFilesCommand extends Command
         // Remove duplicates
         $groupKeys  = array_unique( $groupKeys ); // todo: not supporting group keys for now add this feature!
         $stringKeys = array_unique( $stringKeys );
+        return $stringKeys;
+    }
+
+    /**
+     * @param $locale
+     * @throws \Exception
+     */
+    private function translate_json_array_file($locale,$stringKeys)
+    {
         $this->line('Exploration completed. Let\'s get started');
         $new_lang = [];
         $json_existing_translations = [];
