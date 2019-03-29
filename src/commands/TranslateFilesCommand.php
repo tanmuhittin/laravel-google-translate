@@ -298,7 +298,7 @@ class TranslateFilesCommand extends Command
             }
         }
         $file = fopen(resource_path('lang/' . $locale . '.json'), "w+");
-        $write_text = json_encode($new_lang, JSON_UNESCAPED_UNICODE);
+        $write_text = json_encode($new_lang, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         fwrite($file, $write_text);
         fclose($file);
     }
