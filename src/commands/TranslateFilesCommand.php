@@ -189,6 +189,7 @@ class TranslateFilesCommand extends Command
         $finder = new Finder();
         $finder->in( base_path() )->exclude( 'storage' )->exclude( 'vendor' )->name( '*.php' )->name( '*.twig' )->name( '*.vue' )->files();
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
+        $this->line("Exploring strings...");
         foreach ( $finder as $file ) {
             // Search the current file for the pattern
             if ( preg_match_all( "/$groupPattern/siU", $file->getContents(), $matches ) ) {
@@ -210,16 +211,23 @@ class TranslateFilesCommand extends Command
                     if ( !( mb_strpos( $key, '::' ) !== FALSE && mb_strpos( $key, '.' ) !==  FALSE )
                         || mb_strpos( $key, ' ' ) !== FALSE ) {
                         $stringKeys[] = $key;
+                        if($this->option('verbose')){
+                            $this->line('Found : '.$key);
+                        }
                     }
                 }
             }
         }
         // Remove duplicates
-        $groupKeys  = array_unique( $groupKeys ); // todo: not supporting group keys for now
+        $groupKeys  = array_unique( $groupKeys ); // todo: not supporting group keys for now add this feature!
         $stringKeys = array_unique( $stringKeys );
+        $this->line('Exploration completed. Let\'s get started');
         $new_lang = [];
-        $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
-        $json_existing_translations = json_decode($json_translations_string, true);
+        $json_existing_translations = [];
+        if(file_exists(resource_path('lang/' . $locale . '.json'))){
+            $json_translations_string = file_get_contents(resource_path('lang/' . $locale . '.json'));
+            $json_existing_translations = json_decode($json_translations_string, true);
+        }
         foreach ($stringKeys as $to_be_translated){
             //check existing translations
             if(isset($json_existing_translations[$to_be_translated]) &&
@@ -232,7 +240,7 @@ class TranslateFilesCommand extends Command
             }
             $new_lang[$to_be_translated] = addslashes(self::translate($to_be_translated, $locale));
             if ($this->option('verbose')) {
-                $this->line($to_be_translated . ' : ' . $new_lang[$key]);
+                $this->line($to_be_translated . ' : ' . $new_lang[$to_be_translated]);
             }
         }
         $file = fopen(resource_path('lang/' . $locale . '.json'), "w+");
