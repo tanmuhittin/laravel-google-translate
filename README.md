@@ -19,6 +19,9 @@ Then you can run
 php artisan translate:files
 ```
 
+See it on action:
+<img src="http://muhittintan.com/tanmuhittin-laravel-google-translate.gif" alt="laravel-google-translate" />
+
 ## potential issues
 
 ### SSL certificate problem: unable to get local issuer certificate
