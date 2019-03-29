@@ -3,7 +3,8 @@
 namespace Tanmuhittin\LaravelGoogleTranslate\Commands;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Finder\Finder; //require
+use Stichoza\GoogleTranslate\GoogleTranslate;
+use Symfony\Component\Finder\Finder;
 
 class TranslateFilesCommand extends Command
 {
@@ -85,6 +86,33 @@ class TranslateFilesCommand extends Command
      */
     private function translate($text, $locale)
     {
+        if(config('laravel_google_translate.google_translate_api_key')){
+            return self::translate_via_api_key($text, $locale);
+        }else{
+            return self::translate_via_stichoza($text, $locale);
+        }
+    }
+
+    /**
+     * @param $text
+     * @param $locale
+     * @return null|string
+     * @throws \ErrorException
+     */
+    private function translate_via_stichoza($text,$locale){
+        $tr = new GoogleTranslate();
+        $tr->setSource($this->base_locale);
+        $tr->setTarget($locale);
+        return $tr->translate($text);
+    }
+
+    /**
+     * @param $text
+     * @param $locale
+     * @return mixed
+     * @throws \Exception
+     */
+    private function translate_via_api_key($text, $locale){
         $apiKey = config('laravel_google_translate.google_translate_api_key');
         $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source=' . $this->base_locale . '&target=' . $locale;
         $handle = curl_init();
