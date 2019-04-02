@@ -43,12 +43,12 @@ class TranslateFilesCommand extends Command
     {
         parent::__construct();
         $this->base_locale = $base_locale;
-        $this->locales = $locales;
-        $this->target_files = $target_files;
+        $this->locales = array_filter(explode(",", $locales));
+        $this->target_files = array_filter(explode(",", $target_files));
         $this->force = $force;
         $this->json = $json;
         $this->verbose = $verbose;
-        $this->excluded_files = $excluded_files;
+        $this->excluded_files = array_filter(explode(",", $excluded_files));
     }
 
     /**
@@ -180,7 +180,7 @@ class TranslateFilesCommand extends Command
      * @param $locale
      * @throws \Exception
      */
-    private function translate_php_array_files($locale)
+    public function translate_php_array_files($locale)
     {
         $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
 
@@ -286,9 +286,11 @@ class TranslateFilesCommand extends Command
 
     /**
      * @param $locale
+     * @param $stringKeys
+     * @throws \ErrorException
      * @throws \Exception
      */
-    private function translate_json_array_file($locale,$stringKeys)
+    public function translate_json_array_file($locale,$stringKeys)
     {
         $new_lang = [];
         $json_existing_translations = [];
