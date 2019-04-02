@@ -8,8 +8,8 @@ use Symfony\Component\Finder\Finder;
 
 class TranslateFilesCommand extends Command
 {
-    public $locales;
     public $base_locale;
+    public $locales;
     public $excluded_files;
     public $target_files;
     public $json;
@@ -30,14 +30,25 @@ class TranslateFilesCommand extends Command
     protected $description = 'Translate Translation files. translate:files';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
+     * TranslateFilesCommand constructor.
+     * @param string $base_locale
+     * @param string $locales
+     * @param bool $force
+     * @param bool $json
+     * @param string $target_files
+     * @param string $excluded_files
+     * @param bool $verbose
      */
-    public function __construct()
+    public function __construct($base_locale = 'en', $locales = 'tr,it', $target_files = '', $force = false, $json = false, $verbose = true, $excluded_files = 'auth,pagination,validation,passwords')
     {
         parent::__construct();
-        $this->locales = preg_grep('/^([^.])/', scandir(resource_path('lang')));
+        $this->base_locale = $base_locale;
+        $this->locales = $locales;
+        $this->target_files = $target_files;
+        $this->force = $force;
+        $this->json = $json;
+        $this->verbose = $verbose;
+        $this->excluded_files = $excluded_files;
     }
 
     /**
@@ -103,43 +114,46 @@ class TranslateFilesCommand extends Command
     }
 
     /**
-     * Translate given $text from base_locale to $locale
-     * @param $text
+     * @param $base_locale
      * @param $locale
-     * @return mixed
+     * @param $text
+     * @return mixed|null|string
+     * @throws \ErrorException
      * @throws \Exception
      */
-    public function translate($text, $locale)
+    public static function translate($base_locale, $locale, $text)
     {
         if(config('laravel_google_translate.google_translate_api_key')){
-            return self::translate_via_api_key($text, $locale);
+            return self::translate_via_api_key($base_locale, $locale, $text);
         }else{
-            return self::translate_via_stichoza($text, $locale);
+            return self::translate_via_stichoza($base_locale, $locale, $text);
         }
     }
 
     /**
-     * @param $text
+     * @param $base_locale
      * @param $locale
+     * @param $text
      * @return null|string
      * @throws \ErrorException
      */
-    private function translate_via_stichoza($text,$locale){
+    private static function translate_via_stichoza($base_locale, $locale, $text){
         $tr = new GoogleTranslate();
-        $tr->setSource($this->base_locale);
+        $tr->setSource($base_locale);
         $tr->setTarget($locale);
         return $tr->translate($text);
     }
 
     /**
-     * @param $text
+     * @param $base_locale
      * @param $locale
+     * @param $text
      * @return mixed
      * @throws \Exception
      */
-    private function translate_via_api_key($text, $locale){
+    private static function translate_via_api_key($base_locale, $locale, $text){
         $apiKey = config('laravel_google_translate.google_translate_api_key');
-        $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source=' . $this->base_locale . '&target=' . $locale;
+        $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source=' . $base_locale . '&target=' . $locale;
         $handle = curl_init();
         curl_setopt($handle, CURLOPT_URL, $url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
@@ -151,10 +165,10 @@ class TranslateFilesCommand extends Command
         curl_close($handle);
 
         if (isset($responseDecoded['error'])) {
-            $this->error("Google Translate API returned error");
+            /*$this->error("Google Translate API returned error");
             if (isset($responseDecoded["error"]["message"])) {
                 $this->error($responseDecoded["error"]["message"]);
-            }
+            }*/
             var_dump($responseDecoded);
             exit;
         }
@@ -193,7 +207,7 @@ class TranslateFilesCommand extends Command
                     }
                     continue;
                 }
-                $new_lang[$key] = addslashes(self::translate($to_be_translated, $locale));
+                $new_lang[$key] = addslashes(self::translate($this->base_locale, $locale, $to_be_translated));
                 if ($this->verbose) {
                     $this->line($to_be_translated . ' : ' . $new_lang[$key]);
                 }
@@ -292,7 +306,7 @@ class TranslateFilesCommand extends Command
                 $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$to_be_translated]);
                 continue;
             }
-            $new_lang[$to_be_translated] = addslashes(self::translate($to_be_translated, $locale));
+            $new_lang[$to_be_translated] = addslashes(self::translate($this->base_locale, $locale, $to_be_translated));
             if ($this->verbose) {
                 $this->line($to_be_translated . ' : ' . $new_lang[$to_be_translated]);
             }
