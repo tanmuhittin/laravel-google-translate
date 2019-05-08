@@ -199,17 +199,19 @@ class TranslateFilesCommand extends Command
             }
             $to_be_translateds = trans($file, [], $this->base_locale);
             $new_lang = [];
-            foreach ($to_be_translateds as $key => $to_be_translated) {
-                if (isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->force) {
-                    $new_lang[$key] = $already_translateds[$key];
-                    if ($this->verbose) {
-                        $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$key]);
+            if(is_array($to_be_translateds)){
+                foreach ($to_be_translateds as $key => $to_be_translated) {
+                    if (isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->force) {
+                        $new_lang[$key] = $already_translateds[$key];
+                        if ($this->verbose) {
+                            $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$key]);
+                        }
+                        continue;
                     }
-                    continue;
-                }
-                $new_lang[$key] = addslashes(self::translate($this->base_locale, $locale, $to_be_translated));
-                if ($this->verbose) {
-                    $this->line($to_be_translated . ' : ' . $new_lang[$key]);
+                    $new_lang[$key] = addslashes(self::translate($this->base_locale, $locale, $to_be_translated));
+                    if ($this->verbose) {
+                        $this->line($to_be_translated . ' : ' . $new_lang[$key]);
+                    }
                 }
             }
             //save new lang to new file
