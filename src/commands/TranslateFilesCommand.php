@@ -132,7 +132,9 @@ class TranslateFilesCommand extends Command
         }else{
             $translated = self::translate_via_stichoza($base_locale, $locale, $text);
         }
-        return str_replace("PIKACHU",":",$translated);
+        $translated = str_replace("PIKACHU ",":",$translated);
+        $translated = str_replace("PIKACHU",":",$translated);
+        return $translated;
     }
 
     /**
