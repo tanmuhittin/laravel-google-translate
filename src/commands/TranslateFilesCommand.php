@@ -57,7 +57,7 @@ class TranslateFilesCommand extends Command
     public function handle()
     {
         //Collect input
-        $this->base_locale = $this->ask('What is base locale?','en');
+        $this->base_locale = $this->ask('What is base locale?',config('app.locale'));
         $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key','tr,it')));
         $should_force = $this->choice('Force overwrite existing translations?',['No','Yes'],'No');
         $this->force = false;
