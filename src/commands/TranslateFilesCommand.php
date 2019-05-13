@@ -158,7 +158,7 @@ class TranslateFilesCommand extends Command
      */
     private static function translate_via_api_key($base_locale, $locale, $text){
         $apiKey = config('laravel_google_translate.google_translate_api_key');
-        $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source=' . substr($base_locale, 0, 2) . '&target=' . substr($locale, 0, 2);
+        $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source=' . substr($base_locale, 0, strpos($base_locale."_", "_")) . '&target=' . substr($locale, 0, strpos($locale."_", "_"));
         $handle = curl_init();
         curl_setopt($handle, CURLOPT_URL, $url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
