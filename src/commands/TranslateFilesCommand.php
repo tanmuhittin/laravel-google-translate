@@ -137,7 +137,10 @@ class TranslateFilesCommand extends Command
             $translated = self::translate_via_stichoza($base_locale, $locale, $text);
         }
         foreach ($parameter_map as $key=>$attribute){
-            $translated = str_replace(" ".$key,$attribute,$translated);
+            $translated = str_replace(" ".$key,$attribute,$translated,$count);
+            if($count === 0){
+                $translated = str_replace(" ".substr($key,0,1)." ".substr($key,1),$attribute,$translated,$count);
+            }
         }
         return $translated;
     }
