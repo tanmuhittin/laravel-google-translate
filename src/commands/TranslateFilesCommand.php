@@ -124,16 +124,21 @@ class TranslateFilesCommand extends Command
     public static function translate($base_locale, $locale, $text)
     {
         preg_match_all("/([\s|\:])\:([^\s|^:])+/",$text,$matches);
+        $parameter_map = [];
+        $i = 1;
         foreach($matches[0] as $match){
-            $text = str_replace($match,str_replace(":","PIKACHU",$match),$text);
+            $parameter_map ["x".$i]= $match;
+            $text = str_replace($match," x".$i,$text);
+            $i++;
         }
         if(config('laravel_google_translate.google_translate_api_key')){
             $translated = self::translate_via_api_key($base_locale, $locale, $text);
         }else{
             $translated = self::translate_via_stichoza($base_locale, $locale, $text);
         }
-        $translated = str_replace("PIKACHU ",":",$translated);
-        $translated = str_replace("PIKACHU",":",$translated);
+        foreach ($parameter_map as $key=>$attribute){
+            $translated = str_replace(" ".$key,$attribute,$translated);
+        }
         return $translated;
     }
 
