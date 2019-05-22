@@ -123,7 +123,7 @@ class TranslateFilesCommand extends Command
      */
     public static function translate($base_locale, $locale, $text)
     {
-        preg_match_all("/([\s|\:])\:([^\s|^:])+/",$text,$matches);
+        preg_match_all("/(^:|([\s|\:])\:)([a-zA-z])+/",$text,$matches);
         $parameter_map = [];
         $i = 1;
         foreach($matches[0] as $match){
@@ -137,11 +137,19 @@ class TranslateFilesCommand extends Command
             $translated = self::translate_via_stichoza($base_locale, $locale, $text);
         }
         foreach ($parameter_map as $key=>$attribute){
-            $translated = str_replace(" ".$key,$attribute,$translated,$count);
-            if($count === 0){
-                $translated = str_replace(" ".substr($key,0,1)." ".substr($key,1),$attribute,$translated,$count);
+            $combinations = [
+                $key,
+                substr($key,0,1)." ".substr($key,1),
+                strtoupper(substr($key,0,1))." ".substr($key,1),
+                strtoupper(substr($key,0,1)).substr($key,1)
+            ];
+            foreach ($combinations as $combination){
+                $translated = str_replace($combination,$attribute,$translated,$count);
+                if($count > 0)
+                    break;
             }
         }
+        $translated = str_replace("  :"," :",$translated);
         return $translated;
     }
 
