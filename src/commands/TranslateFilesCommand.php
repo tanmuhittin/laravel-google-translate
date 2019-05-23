@@ -231,10 +231,7 @@ class TranslateFilesCommand extends Command
                         }
                         continue;
                     }
-                    $new_lang[$key] = self::translate($this->base_locale, $locale, $to_be_translated);
-                    if ($this->verbose) {
-                        $this->line($to_be_translated . ' : ' . $new_lang[$key]);
-                    }
+                    $new_lang[$key] = $this->translate_attribute($to_be_translated,$locale);
                 }
             }
             //save new lang to new file
@@ -244,6 +241,22 @@ class TranslateFilesCommand extends Command
             fclose($file);
         }
         return;
+    }
+
+    private function translate_attribute($attribute,$locale){
+        if(is_array($attribute)){
+            $return = [];
+            foreach ($attribute as $k => $t){
+                $return[$k] = $this->translate_attribute($t,$locale);
+            }
+            return $return;
+        }else{
+            $translated = self::translate($this->base_locale, $locale, $attribute);
+            if ($this->verbose) {
+                $this->line($attribute . ' : ' . $translated);
+            }
+            return $translated;
+        }
     }
 
     /**
