@@ -231,7 +231,7 @@ class TranslateFilesCommand extends Command
                         }
                         continue;
                     }
-                    $new_lang[$key] = addslashes(self::translate($this->base_locale, $locale, $to_be_translated));
+                    $new_lang[$key] = self::translate($this->base_locale, $locale, $to_be_translated);
                     if ($this->verbose) {
                         $this->line($to_be_translated . ' : ' . $new_lang[$key]);
                     }
