@@ -16,8 +16,13 @@
     }
   },
   "autoload": {
-    "psr-0": {
-      "Tanmuhittin\\LaravelGoogleTranslate": "src/"
+    "psr-4": {
+      "Tanmuhittin\\LaravelGoogleTranslate\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tanmuhittin\\LaravelGoogleTranslateTests\\": "tests"
     }
   },
   "authors": [
@@ -26,5 +31,9 @@
       "email": "tanmuhittin@gmail.com"
     }
   ],
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "require-dev": {
+    "phpunit/phpunit": "^8.3@dev",
+    "ext-json": "*"
+  }
 }

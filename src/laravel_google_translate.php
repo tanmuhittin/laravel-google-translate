@@ -11,7 +11,7 @@ return [
         '@lang',
         '@choice',
         '__',
-        '$trans.get',
-        '$t'
+        '\$trans.get',
+        '\$t'
     ],
 ];

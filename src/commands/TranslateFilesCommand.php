@@ -57,7 +57,7 @@ class TranslateFilesCommand extends Command
     public function handle()
     {
         //Collect input
-        $this->base_locale = $this->ask('What is base locale?',config('app.locale'));
+        $this->base_locale = $this->ask('What is base locale?',config('app.locale','en'));
         $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key','tr,it')));
         $should_force = $this->choice('Force overwrite existing translations?',['No','Yes'],'No');
         $this->force = false;
@@ -131,7 +131,7 @@ class TranslateFilesCommand extends Command
             $text = str_replace($match," x".$i,$text);
             $i++;
         }
-        if(config('laravel_google_translate.google_translate_api_key')){
+        if(config('laravel_google_translate.google_translate_api_key', false)){
             $translated = self::translate_via_api_key($base_locale, $locale, $text);
         }else{
             $translated = self::translate_via_stichoza($base_locale, $locale, $text);
@@ -175,7 +175,7 @@ class TranslateFilesCommand extends Command
      * @throws \Exception
      */
     private static function translate_via_api_key($base_locale, $locale, $text){
-        $apiKey = config('laravel_google_translate.google_translate_api_key');
+        $apiKey = config('laravel_google_translate.google_translate_api_key', false);
         $url = 'https://www.googleapis.com/language/translate/v2?key=' . $apiKey . '&q=' . rawurlencode($text) . '&source=' . substr($base_locale, 0, strpos($base_locale."_", "_")) . '&target=' . substr($locale, 0, strpos($locale."_", "_"));
         $handle = curl_init();
         curl_setopt($handle, CURLOPT_URL, $url);
@@ -214,7 +214,8 @@ class TranslateFilesCommand extends Command
             $file = substr($file, 0, -4);
             $already_translateds = [];
             if (file_exists(resource_path('lang/' . $locale . '/' . $file . '.php'))) {
-                $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Checking missing translations');
+                if($this->verbose)
+                    $this->line('File already exists: lang/' . $locale . '/' . $file . '.php. Checking missing translations');
                 $already_translateds = trans($file, [], $locale);
             }
             if (in_array($file, $this->excluded_files)) {
@@ -235,6 +236,9 @@ class TranslateFilesCommand extends Command
                 }
             }
             //save new lang to new file
+            if(!file_exists(resource_path('lang/' . $locale ))){
+                mkdir(resource_path('lang/' . $locale ));
+            }
             $file = fopen(resource_path('lang/' . $locale . '/' . $file . '.php'), "w+");
             $write_text = "<?php \nreturn " . var_export($new_lang, true) . ";";
             fwrite($file, $write_text);
@@ -262,10 +266,22 @@ class TranslateFilesCommand extends Command
     /**
      * @return array
      */
-    private function explore_strings(){
+    public function explore_strings(){
         $groupKeys  = [];
         $stringKeys = [];
-        $functions  = config('laravel_google_translate.trans_functions');
+        $functions  = config('laravel_google_translate.trans_functions', [
+            'trans',
+            'trans_choice',
+            'Lang::get',
+            'Lang::choice',
+            'Lang::trans',
+            'Lang::transChoice',
+            '@lang',
+            '@choice',
+            '__',
+            '\$trans.get',
+            '\$t'
+        ]);
         $groupPattern =                          // See https://regex101.com/r/WEJqdL/6
             "[^\w|>]" .                          // Must not have an alphanum or _ or > before real method
             '(' . implode( '|', $functions ) . ')' .  // Must start with one of the functions
@@ -343,7 +359,8 @@ class TranslateFilesCommand extends Command
                 !$this->force)
             {
                 $new_lang[$to_be_translated] = $json_existing_translations[$to_be_translated];
-                $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$to_be_translated]);
+                if($this->verbose)
+                    $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$to_be_translated]);
                 continue;
             }
             $new_lang[$to_be_translated] = addslashes(self::translate($this->base_locale, $locale, $to_be_translated));
