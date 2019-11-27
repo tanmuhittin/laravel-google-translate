@@ -207,7 +207,7 @@ class TranslateFilesCommand extends Command
             exit;
         }
 
-        return $translator == 'google'? $responseDecoded['data']['translations'][0]['translatedText'] : $responseDecoded['text'][0];
+        return $translator == 'google'? $responseDecoded['data']['translations'][0]['translatedText'] : ($responseDecoded['text'][0] ?? $text);
     }
 
     /**
