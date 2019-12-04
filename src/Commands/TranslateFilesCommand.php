@@ -8,6 +8,10 @@ use Symfony\Component\Finder\Finder;
 
 class TranslateFilesCommand extends Command
 {
+    public static $request_count = 0;
+    public static $request_per_sec = 5;
+    public static $sleep_for_sec = 1;
+
     public $base_locale;
     public $locales;
     public $excluded_files;
@@ -131,6 +135,14 @@ class TranslateFilesCommand extends Command
             $text = str_replace($match," x".$i,$text);
             $i++;
         }
+
+        // Check if the API request limit reached.
+        if( self::$request_count >= self::$request_per_sec ){
+            sleep(self::$sleep_for_sec);
+            self::$request_count = 0; //Reset the $request_count
+        }
+        self::$request_count++; //Increase the request_count by 1
+
         if(config('laravel_google_translate.google_translate_api_key', false)){
             $translated = self::translate_via_api_key($base_locale, $locale, $text);
         }else{
