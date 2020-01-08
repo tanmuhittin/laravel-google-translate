@@ -4,7 +4,7 @@ Translate translation files (under /resources/lang) or lang.json files from spec
 ## installation
 ```console
 composer require tanmuhittin/laravel-google-translate --dev
-php artisan vendor:publish --provider=Tanmuhittin\LaravelGoogleTranslate\LaravelGoogleTranslateServiceProvider
+php artisan vendor:publish --provider="Tanmuhittin\LaravelGoogleTranslate\LaravelGoogleTranslateServiceProvider"
 ```
 
 If you would like to use stichoza/google-translate-php you do not need an API key. If you would like to use Google Translate API, edit config/laravel_google_translate.php and add your Google Translate API key.
