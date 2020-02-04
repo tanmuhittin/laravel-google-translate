@@ -236,16 +236,7 @@ class TranslateFilesCommand extends Command
             $to_be_translateds = trans($file, [], $this->base_locale);
             $new_lang = [];
             if(is_array($to_be_translateds)){
-                foreach ($to_be_translateds as $key => $to_be_translated) {
-                    if (isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->force) {
-                        $new_lang[$key] = $already_translateds[$key];
-                        if ($this->verbose) {
-                            $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$key]);
-                        }
-                        continue;
-                    }
-                    $new_lang[$key] = $this->translate_attribute($to_be_translated,$locale);
-                }
+                $new_lang = $this->skipMultidensional($to_be_translateds, $already_translateds, $locale);
             }
             //save new lang to new file
             if(!file_exists(resource_path('lang/' . $locale ))){
@@ -257,6 +248,40 @@ class TranslateFilesCommand extends Command
             fclose($file);
         }
         return;
+    }
+
+        /**
+     * Walks array recursively to find strings already translated
+     *
+     * @author Maykon Facincani <facincani.maykon@gmail.com>
+     *
+     * @param array $to_be_translateds
+     * @param array $already_translateds
+     * @param String $locale
+     *
+     * @return array
+     */
+    private function skipMultidensional($to_be_translateds, $already_translateds, $locale){
+        $data = [];
+        foreach($to_be_translateds as $key => $to_be_translated){
+            if ( is_array($to_be_translateds[$key]) ) {
+                if( !isset($already_translateds[$key]) ) {
+                    $already_translateds[$key] = [];
+                }
+                $data[$key] = $this->skipMultidensional($to_be_translateds[$key], $already_translateds[$key], $locale);
+            } else {
+                if ( isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->force) {
+                    $data[$key] = $already_translateds[$key];
+                    if ($this->verbose) {
+                        $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $data[$key]);
+                    }
+                    continue;
+                } else {
+                    $data[$key] = $this->translate_attribute($to_be_translated,$locale);
+                }
+            }
+        }
+        return $data;
     }
 
     private function translate_attribute($attribute,$locale){
