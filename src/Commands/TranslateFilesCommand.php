@@ -43,8 +43,20 @@ class TranslateFilesCommand extends Command
      * @param string $excluded_files
      * @param bool $verbose
      */
-    public function __construct($base_locale = 'en', $locales = 'tr,it', $target_files = '', $force = false, $json = false, $verbose = true, $excluded_files = 'auth,pagination,validation,passwords')
+    public function __construct($base_locale = 'en', $locales = null, $target_files = '', $force = false, $json = false, $verbose = true, $excluded_files = 'auth,pagination,validation,passwords')
     {
+        $dirs = scandir(resource_path('lang'));
+        foreach ($dirs as $key => $dir) {
+            $ext = pathinfo($dir, PATHINFO_EXTENSION);
+            if (in_array($dir, [".", ".."]) || $ext) {
+                unset($dirs[$key]);
+            }
+        }
+
+        if (is_null($locales)) {
+            $locales = join(',', $dirs);
+        }
+        
         parent::__construct();
         $this->base_locale = $base_locale;
         $this->locales = array_filter(explode(",", $locales));
@@ -60,9 +72,17 @@ class TranslateFilesCommand extends Command
      */
     public function handle()
     {
+        $dirs = scandir(resource_path('lang'));
+        foreach ($dirs as $key => $dir) {
+            $ext = pathinfo($dir, PATHINFO_EXTENSION);
+            if (in_array($dir, [".", ".."]) || $ext) {
+                unset($dirs[$key]);
+            }
+        }
+        
         //Collect input
         $this->base_locale = $this->ask('What is base locale?',config('app.locale','en'));
-        $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key','tr,it')));
+        $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key', join(',', $dirs))));
         $should_force = $this->choice('Force overwrite existing translations?',['No','Yes'],'No');
         $this->force = false;
         if($should_force === 'Yes'){
