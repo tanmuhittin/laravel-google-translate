@@ -288,6 +288,40 @@ class TranslateFilesCommand extends Command
         return;
     }
 
+        /**
+     * Walks array recursively to find strings already translated
+     *
+     * @author Maykon Facincani <facincani.maykon@gmail.com>
+     *
+     * @param array $to_be_translateds
+     * @param array $already_translateds
+     * @param String $locale
+     *
+     * @return array
+     */
+    private function skipMultidensional($to_be_translateds, $already_translateds, $locale){
+        $data = [];
+        foreach($to_be_translateds as $key => $to_be_translated){
+            if ( is_array($to_be_translateds[$key]) ) {
+                if( !isset($already_translateds[$key]) ) {
+                    $already_translateds[$key] = [];
+                }
+                $data[$key] = $this->skipMultidensional($to_be_translateds[$key], $already_translateds[$key], $locale);
+            } else {
+                if ( isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->force) {
+                    $data[$key] = $already_translateds[$key];
+                    if ($this->verbose) {
+                        $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $data[$key]);
+                    }
+                    continue;
+                } else {
+                    $data[$key] = $this->translate_attribute($to_be_translated,$locale);
+                }
+            }
+        }
+        return $data;
+    }
+
     private function translate_attribute($attribute,$locale){
         if(is_array($attribute)){
             $return = [];
