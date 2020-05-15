@@ -3,6 +3,7 @@
 namespace Tanmuhittin\LaravelGoogleTranslate\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 use Symfony\Component\Finder\Finder;
 
@@ -85,6 +86,7 @@ class TranslateFilesCommand extends Command
         if($should_verbose === 'Yes'){
             $this->verbose = true;
         }
+
         //Start Translating
         $bar = $this->output->createProgressBar(count($this->locales));
         $bar->start();
@@ -211,6 +213,40 @@ class TranslateFilesCommand extends Command
         return $responseDecoded['data']['translations'][0]['translatedText'];
     }
 
+    protected function normalizeArray(array $items)
+    {
+        $result = [];
+        foreach ($items as $key => $value) {
+            Arr::set($result, $key, $value);
+        }
+
+        return $result;
+    }
+    
+
+    /**
+     * @param string $locale
+     * @param array $toTranslate
+     * @param array $alr
+     * @throws \Exception
+     */
+    private function mapperTranslatedsWords(string $locale, array $toTranslate, array $alreadyTranslates, array $translateds = [])
+    {
+        foreach ($toTranslate as $key => $translate) {
+            if (!empty($alreadyTranslates[$key]) && ! $this->force) {
+                $translateds[$key] = $alreadyTranslates[$key];
+                if ($this->verbose) {
+                    $this->line('Exists Skipping -> '.$translate.' : '.$translateds[$key]);
+                }
+
+                continue;
+            }
+
+            $translateds[$key] = $this->translate_attribute($translate, $locale);
+        }
+        return $this->normalizeArray($translateds);
+    }
+
     /**
      * @param $locale
      * @throws \Exception
@@ -236,16 +272,9 @@ class TranslateFilesCommand extends Command
             $to_be_translateds = trans($file, [], $this->base_locale);
             $new_lang = [];
             if(is_array($to_be_translateds)){
-                foreach ($to_be_translateds as $key => $to_be_translated) {
-                    if (isset($already_translateds[$key]) && $already_translateds[$key] != '' && !$this->force) {
-                        $new_lang[$key] = $already_translateds[$key];
-                        if ($this->verbose) {
-                            $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$key]);
-                        }
-                        continue;
-                    }
-                    $new_lang[$key] = $this->translate_attribute($to_be_translated,$locale);
-                }
+                $to_be_translateds = Arr::dot($to_be_translateds);
+                $already_translateds = Arr::dot($already_translateds);
+                $new_lang = $this->mapperTranslatedsWords($locale, $to_be_translateds, $already_translateds);
             }
             //save new lang to new file
             if(!file_exists(resource_path('lang/' . $locale ))){
