@@ -22,11 +22,6 @@
       "Tanmuhittin\\LaravelGoogleTranslate\\": "src"
     }
   },
-  "autoload-dev": {
-    "psr-4": {
-      "Tanmuhittin\\LaravelGoogleTranslateTests\\": "tests"
-    }
-  },
   "authors": [
     {
       "name": "Muhittin Tan",
@@ -35,7 +30,6 @@
   ],
   "minimum-stability": "dev",
   "require-dev": {
-    "phpunit/phpunit": "^8.3@dev",
     "ext-json": "*"
   }
 }
