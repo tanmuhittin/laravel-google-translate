@@ -2,7 +2,7 @@
 Translate translation files (under /resources/lang) or lang.json files from specified base locale to other languages using stichoza/google-translate-php or Google Translate API https://cloud.google.com/translate/
 
 ## this project needs refactor
-Project code needs to be designed much better. In progress...
+Project code needs to be designed much better. Refactoring is in progress in refactor-code branch
 
 ## installation
 ```console
