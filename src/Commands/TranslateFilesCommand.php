@@ -187,7 +187,6 @@ class TranslateFilesCommand extends Command
      * @param $base_locale
      * @param $locale
      * @param $text
-     * @param TranslatorContract $translator
      * @return mixed|string
      */
     public function translate($base_locale, $locale, $text)
@@ -196,7 +195,7 @@ class TranslateFilesCommand extends Command
 
         $this->api_limit_check();
 
-        $translated = $this->translator->translate($base_locale, $locale, $text);
+        $translated = $this->translator->translate($text, $locale, $base_locale);
 
         $translated = $this->post_handle_parameters($translated);
 
