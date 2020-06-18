@@ -1,6 +1,7 @@
 <?php
 return [
     'google_translate_api_key'=>null,
+    'yandex_translate_api_key'=>null,
     'trans_functions' => [
         'trans',
         'trans_choice',

@@ -3,6 +3,9 @@
 namespace Tanmuhittin\LaravelGoogleTranslate;
 
 use Illuminate\Support\ServiceProvider;
+use Tanmuhittin\LaravelGoogleTranslate\Api\GoogleApiTranslate;
+use Tanmuhittin\LaravelGoogleTranslate\Api\StichozaApiTranslate;
+use Tanmuhittin\LaravelGoogleTranslate\Api\YandexApiTranslate;
 use Tanmuhittin\LaravelGoogleTranslate\Commands\TranslateFilesCommand;
 
 class LaravelGoogleTranslateServiceProvider extends ServiceProvider
@@ -29,8 +32,15 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if ($this->app['config']->get('laravel_google_translate') === null) {
-            $this->app['config']->set('laravel_google_translate', require __DIR__.'/laravel_google_translate.php');
-        }
+        $this->app->singleton(TranslatorContract::class,function ($app){
+            $config = $app->make('config')->get('laravel_google_translate');
+            if($config['google_translate_api_key']!==null){
+                return new GoogleApiTranslate($config['google_translate_api_key']);
+            }elseif ($config['yandex_translate_api_key']!==null){
+                return new YandexApiTranslate($config['yandex_translate_api_key']);
+            }else{
+                return new StichozaApiTranslate(null);
+            }
+        });
     }
 }

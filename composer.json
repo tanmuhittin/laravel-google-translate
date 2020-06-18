@@ -6,7 +6,9 @@
     "php": ">=7.0.0",
     "illuminate/support": "^5.5|^6|^7",
     "illuminate/translation": "^5.5|^6|^7",
-    "stichoza/google-translate-php": "^4.0"
+    "stichoza/google-translate-php": "^4.0",
+    "google/cloud-translate": "dev-master",
+    "yandex/translate-api": "dev-master"
   },
   "extra": {
     "laravel": {
