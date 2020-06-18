@@ -15,8 +15,8 @@ class CommandTest extends TestCase
         $command->translate_php_array_files('it');
         $translated_texts_tr = trans('tests', [], 'tr');
         $translated_texts_it = trans('tests', [], 'it');
-        deleteAll(__DIR__ . '/../../test-resources/resources/lang/tr');
-        deleteAll(__DIR__ . '/../../test-resources/resources/lang/it');
+        $this->deleteAll(__DIR__ . '/../../test-resources/resources/lang/tr');
+        $this->deleteAll(__DIR__ . '/../../test-resources/resources/lang/it');
         $this->assertEquals(count($to_be_translated_texts_sv), count($translated_texts_tr));
         $this->assertEquals(count($to_be_translated_texts_sv), count($translated_texts_it));
     }
@@ -33,5 +33,18 @@ class CommandTest extends TestCase
         unlink(__DIR__ . '/../../test-resources/resources/lang/it.json');
         $this->assertNotEquals(0, count($tr_translations));
         $this->assertNotEquals(0, count($it_translations));
+    }
+
+    public function deleteAll($path)
+    {
+        if (is_file($path)) {
+            return unlink($path);
+        } elseif (is_dir($path)) {
+        $scan = glob(rtrim($path, '/') . '/*');
+        foreach ($scan as $index => $p) {
+            $this->deleteAll($p);
+        }
+        return @rmdir($path);
+        }
     }
 }
