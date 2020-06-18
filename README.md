@@ -1,6 +1,9 @@
 # laravel-google-translate
 Translate translation files (under /resources/lang) or lang.json files from specified base locale to other languages using stichoza/google-translate-php or Google Translate API https://cloud.google.com/translate/
 
+## this project needs refactor
+Project code needs to be designed much better. In progress...
+
 ## installation
 ```console
 composer require tanmuhittin/laravel-google-translate --dev
