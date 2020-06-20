@@ -1,9 +1,9 @@
 <?php
 
-namespace Tanmuhittin\LaravelGoogleTranslate;
+namespace Tanmuhittin\LaravelGoogleTranslate\Contracts;
 
 
-interface TranslatorContract
+interface ApiTranslatorContract
 {
 
     /**

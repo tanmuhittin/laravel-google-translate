@@ -4,9 +4,9 @@ namespace Tanmuhittin\LaravelGoogleTranslate\Api;
 
 
 use Stichoza\GoogleTranslate\GoogleTranslate;
-use Tanmuhittin\LaravelGoogleTranslate\TranslatorContract;
+use Tanmuhittin\LaravelGoogleTranslate\Contracts\ApiTranslatorContract;
 
-class StichozaApiTranslate implements TranslatorContract
+class StichozaApiTranslate implements ApiTranslatorContract
 {
     public $handle;
 

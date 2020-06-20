@@ -3,10 +3,12 @@
 namespace Tanmuhittin\LaravelGoogleTranslate;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Tanmuhittin\LaravelGoogleTranslate\Api\GoogleApiTranslate;
 use Tanmuhittin\LaravelGoogleTranslate\Api\StichozaApiTranslate;
 use Tanmuhittin\LaravelGoogleTranslate\Api\YandexApiTranslate;
 use Tanmuhittin\LaravelGoogleTranslate\Commands\TranslateFilesCommand;
+use Tanmuhittin\LaravelGoogleTranslate\Contracts\ApiTranslatorContract;
 
 class LaravelGoogleTranslateServiceProvider extends ServiceProvider
 {
@@ -32,7 +34,7 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(TranslatorContract::class,function ($app){
+        $this->app->singleton(ApiTranslatorContract::class,function ($app){
             $config = $app->make('config')->get('laravel_google_translate');
             if($config['google_translate_api_key']!==null){
                 return new GoogleApiTranslate($config['google_translate_api_key']);
@@ -41,6 +43,27 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
             }else{
                 return new StichozaApiTranslate(null);
             }
+        });
+
+        Str::macro('apiTranslate',function (string $text, string $locale, string $base_locale = null){
+            if($base_locale === null){
+                $config = resolve('config')->get('app');
+                if(!is_null($config['locale'])){
+                    $base_locale = $config['locale'];
+                }
+            }
+            $translator = resolve(ApiTranslatorContract::class);
+            return $translator->translate($text, $locale, $base_locale);
+        });
+        Str::macro('apiTranslateWithAttributes',function (string $text, string $locale, string $base_locale = null){
+            if($base_locale === null){
+                $config = resolve('config')->get('app');
+                if(!is_null($config['locale'])){
+                    $base_locale = $config['locale'];
+                }
+            }
+            $translator = new ApiTranslateWithAttribute;
+            return $translator->translate($text, $locale, $base_locale);
         });
     }
 }

@@ -2,8 +2,13 @@
 Translate translation files (under /resources/lang) or lang.json files from specified base locale to other languages using stichoza/google-translate-php or Google Translate API https://cloud.google.com/translate/
 
 ## refactor roadmap
-* Refactor functions in TranslateFilesCommand : translate_php_array_files, skipMultidensional, translate_json_array_file
-* Divide relevant functions into their classes in TranslateFilesCommand to LaravelTextTranslator, TranslateAsJson, TranslateAsPhpArray
+* Refactor functions : translate_php_array_files, skipMultidensional, translate_json_array_file
+
+## Str Api Translation Helpers
+This package provides two translation helper methods:
+* `Illuminate\Support\Str::apiTranslate` -> Translates texts using your selected api in config
+* `Illuminate\Support\Str::apiTranslateWithAttributes` -> Again translates texts using your selected api in config
+ in addition to that this function respects Laravel translation text attributes like :name 
 
 ## installation
 ```console

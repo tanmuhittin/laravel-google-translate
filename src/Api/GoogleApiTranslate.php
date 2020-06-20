@@ -3,9 +3,9 @@
 namespace Tanmuhittin\LaravelGoogleTranslate\Api;
 
 use Google\Cloud\Translate\V2\TranslateClient;
-use Tanmuhittin\LaravelGoogleTranslate\TranslatorContract;
+use Tanmuhittin\LaravelGoogleTranslate\Contracts\ApiTranslatorContract;
 
-class GoogleApiTranslate implements TranslatorContract
+class GoogleApiTranslate implements ApiTranslatorContract
 {
     public $handle;
 
