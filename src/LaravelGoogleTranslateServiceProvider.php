@@ -23,7 +23,7 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
             TranslateFilesCommand::class
         ]);
         $this->publishes([
-            __DIR__.'/laravel_google_translate.php' => config_path('laravel_google_translate.php'),
+            __DIR__ . '/laravel_google_translate.php' => config_path('laravel_google_translate.php'),
         ]);
     }
 
@@ -34,31 +34,31 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(ApiTranslatorContract::class,function ($app){
+        $this->app->singleton(ApiTranslatorContract::class, function ($app) {
             $config = $app->make('config')->get('laravel_google_translate');
-            if($config['google_translate_api_key']!==null){
+            if ($config['google_translate_api_key'] !== null) {
                 return new GoogleApiTranslate($config['google_translate_api_key']);
-            }elseif ($config['yandex_translate_api_key']!==null){
+            } elseif ($config['yandex_translate_api_key'] !== null) {
                 return new YandexApiTranslate($config['yandex_translate_api_key']);
-            }else{
+            } else {
                 return new StichozaApiTranslate(null);
             }
         });
 
-        Str::macro('apiTranslate',function (string $text, string $locale, string $base_locale = null){
-            if($base_locale === null){
+        Str::macro('apiTranslate', function (string $text, string $locale, string $base_locale = null) {
+            if ($base_locale === null) {
                 $config = resolve('config')->get('app');
-                if(!is_null($config['locale'])){
+                if (!is_null($config['locale'])) {
                     $base_locale = $config['locale'];
                 }
             }
             $translator = resolve(ApiTranslatorContract::class);
             return $translator->translate($text, $locale, $base_locale);
         });
-        Str::macro('apiTranslateWithAttributes',function (string $text, string $locale, string $base_locale = null){
-            if($base_locale === null){
+        Str::macro('apiTranslateWithAttributes', function (string $text, string $locale, string $base_locale = null) {
+            if ($base_locale === null) {
                 $config = resolve('config')->get('app');
-                if(!is_null($config['locale'])){
+                if (!is_null($config['locale'])) {
                     $base_locale = $config['locale'];
                 }
             }

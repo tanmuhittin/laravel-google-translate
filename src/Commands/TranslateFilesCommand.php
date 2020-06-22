@@ -61,32 +61,32 @@ class TranslateFilesCommand extends Command
     public function handle()
     {
         //Collect input
-        $this->base_locale = $this->ask('What is base locale?',config('app.locale','en'));
-        $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key','tr,it')));
-        $should_force = $this->choice('Force overwrite existing translations?',['No','Yes'],'No');
+        $this->base_locale = $this->ask('What is base locale?', config('app.locale', 'en'));
+        $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key', 'tr,it')));
+        $should_force = $this->choice('Force overwrite existing translations?', ['No', 'Yes'], 'No');
         $this->force = false;
-        if($should_force === 'Yes'){
+        if ($should_force === 'Yes') {
             $this->force = true;
         }
-        $should_verbose = $this->choice('Verbose each translation?',['No','Yes'],'Yes');
+        $should_verbose = $this->choice('Verbose each translation?', ['No', 'Yes'], 'Yes');
         $this->verbose = false;
-        if($should_verbose === 'Yes'){
+        if ($should_verbose === 'Yes') {
             $this->verbose = true;
         }
-        $mode = $this->choice('Use text exploration and json translation or php files?',['json','php'],'php');
+        $mode = $this->choice('Use text exploration and json translation or php files?', ['json', 'php'], 'php');
         $this->json = false;
-        if($mode === 'json'){
+        if ($mode === 'json') {
             $this->json = true;
             $file_translator = new JsonArrayFileTranslator($this->base_locale, $this->verbose, $this->force);
         }
-        if(!$this->json){
+        if (!$this->json) {
             $file_translator = new PhpArrayFileTranslator($this->base_locale, $this->verbose, $this->force);
-            $this->target_files = array_filter(explode(",", $this->ask('Are there specific target files to translate only? ex: file1,file2','')));
-            foreach ($this->target_files as $key=>$target_file){
-                $this->target_files[$key] = $target_file.'.php';
+            $this->target_files = array_filter(explode(",", $this->ask('Are there specific target files to translate only? ex: file1,file2', '')));
+            foreach ($this->target_files as $key => $target_file) {
+                $this->target_files[$key] = $target_file . '.php';
             }
             $file_translator->setTargetFiles($this->target_files);
-            $this->excluded_files = array_filter(explode(",", $this->ask('Are there specific files to exclude?','auth,pagination,validation,passwords')));
+            $this->excluded_files = array_filter(explode(",", $this->ask('Are there specific files to exclude?', 'auth,pagination,validation,passwords')));
             $file_translator->setExcludedFiles($this->excluded_files);
         }
         //Start Translating

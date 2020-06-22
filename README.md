@@ -5,7 +5,7 @@ Translate translation files (under /resources/lang) or lang.json files from spec
 * Refactor functions : translate_php_array_files, skipMultidensional, translate_json_array_file
 
 ## Str Api Translation Helpers
-This package provides two translation helper methods:
+This package provides two translation methods for Laravel helper Str
 * `Illuminate\Support\Str::apiTranslate` -> Translates texts using your selected api in config
 * `Illuminate\Support\Str::apiTranslateWithAttributes` -> Again translates texts using your selected api in config
  in addition to that this function respects Laravel translation text attributes like :name 
