@@ -4,9 +4,11 @@ namespace Tanmuhittin\LaravelGoogleTranslate\TranslationFileTranslators;
 
 use Illuminate\Support\Str;
 use Tanmuhittin\LaravelGoogleTranslate\Contracts\FileTranslatorContract;
+use Tanmuhittin\LaravelGoogleTranslate\Helpers\ConsoleHelper;
 
 class PhpArrayFileTranslator implements FileTranslatorContract
 {
+    use ConsoleHelper;
     private $base_locale;
     private $target_files;
     private $excluded_files;
@@ -125,10 +127,5 @@ class PhpArrayFileTranslator implements FileTranslatorContract
     public function setExcludedFiles($excluded_files)
     {
         $this->excluded_files = $excluded_files;
-    }
-
-    public function line($text)
-    {
-        echo $text . "\n";
     }
 }

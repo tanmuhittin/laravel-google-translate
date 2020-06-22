@@ -5,9 +5,11 @@ namespace Tanmuhittin\LaravelGoogleTranslate\TranslationFileTranslators;
 use Illuminate\Support\Str;
 use Symfony\Component\Finder\Finder;
 use Tanmuhittin\LaravelGoogleTranslate\Contracts\FileTranslatorContract;
+use Tanmuhittin\LaravelGoogleTranslate\Helpers\ConsoleHelper;
 
 class JsonArrayFileTranslator implements FileTranslatorContract
 {
+    use ConsoleHelper;
     private $base_locale;
     private $verbose;
     private $force;
@@ -131,10 +133,5 @@ class JsonArrayFileTranslator implements FileTranslatorContract
         $groupKeys = array_unique($groupKeys); // todo: not supporting group keys for now add this feature!
         $stringKeys = array_unique($stringKeys);
         return $stringKeys;
-    }
-
-    public function line($text)
-    {
-        echo $text . "\n";
     }
 }
