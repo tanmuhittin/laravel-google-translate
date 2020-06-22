@@ -31,31 +31,37 @@ class JsonArrayFileTranslator implements FileTranslatorContract
     public function handle($target_locale)
     {
         $stringKeys = $this->explore_strings();
-        $new_lang = [];
-        $json_existing_translations = [];
-        if (file_exists(resource_path('lang/' . $target_locale . '.json'))) {
-            $json_translations_string = file_get_contents(resource_path('lang/' . $target_locale . '.json'));
-            $json_existing_translations = json_decode($json_translations_string, true);
-        }
+        $existing_translations = $this->fetch_existing_translations($target_locale);
+        $translated_strings = [];
         foreach ($stringKeys as $to_be_translated) {
             //check existing translations
-            if (isset($json_existing_translations[$to_be_translated]) &&
-                $json_existing_translations[$to_be_translated] != '' &&
+            if (isset($existing_translations[$to_be_translated]) &&
+                $existing_translations[$to_be_translated] != '' &&
                 !$this->force) {
-                $new_lang[$to_be_translated] = $json_existing_translations[$to_be_translated];
-                if ($this->verbose)
-                    $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $new_lang[$to_be_translated]);
+                $translated_strings[$to_be_translated] = $existing_translations[$to_be_translated];
+                $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $translated_strings[$to_be_translated]);
                 continue;
             }
-            $new_lang[$to_be_translated] = addslashes(Str::apiTranslateWithAttributes($to_be_translated, $target_locale, $this->base_locale));
-            if ($this->verbose) {
-                $this->line($to_be_translated . ' : ' . $new_lang[$to_be_translated]);
-            }
+            $translated_strings[$to_be_translated] = addslashes(Str::apiTranslateWithAttributes($to_be_translated, $target_locale, $this->base_locale));
+            $this->line($to_be_translated . ' : ' . $translated_strings[$to_be_translated]);
         }
+        $this->write_translated_strings_to_file($translated_strings, $target_locale);
+    }
+
+    private function write_translated_strings_to_file($translated_strings,$target_locale){
         $file = fopen(resource_path('lang/' . $target_locale . '.json'), "w+");
-        $write_text = json_encode($new_lang, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        $write_text = json_encode($translated_strings, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         fwrite($file, $write_text);
         fclose($file);
+    }
+
+    private function fetch_existing_translations($target_locale){
+        $existing_translations = [];
+        if (file_exists(resource_path('lang/' . $target_locale . '.json'))) {
+            $json_translations_string = file_get_contents(resource_path('lang/' . $target_locale . '.json'));
+            $existing_translations = json_decode($json_translations_string, true);
+        }
+        return $existing_translations;
     }
 
     /**
@@ -122,9 +128,7 @@ class JsonArrayFileTranslator implements FileTranslatorContract
                     if (!(mb_strpos($key, '::') !== FALSE && mb_strpos($key, '.') !== FALSE)
                         || mb_strpos($key, ' ') !== FALSE) {
                         $stringKeys[] = $key;
-                        if ($this->verbose) {
-                            $this->line('Found : ' . $key);
-                        }
+                        $this->line('Found : ' . $key);
                     }
                 }
             }

@@ -7,6 +7,7 @@ trait ConsoleHelper
 {
     public function line($text)
     {
-        echo $text . "\n";
+        if(!isset($this->verbose) || (isset($this->verbose) && $this->verbose))
+            echo $text . "\n";
     }
 }
