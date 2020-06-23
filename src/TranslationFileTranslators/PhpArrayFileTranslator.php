@@ -29,11 +29,14 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         foreach ($files as $file) {
             $existing_translations = [];
             $file_address = $this->get_language_file_address($target_locale, $file.'.php');
+            $this->line($file_address.' is preparing');
             if (file_exists($file_address)) {
-                $this->line('File already exists: '.$file_address.'. Checking missing translations');
+                $this->line('File already exists');
                 $existing_translations = trans($file, [], $target_locale);
+                $this->line('Existing translations collected');
             }
             $to_be_translateds = trans($file, [], $this->base_locale);
+            $this->line('Source text collected');
             $translations = [];
             if (is_array($to_be_translateds)) {
                 $translations = $this->handleTranslations($to_be_translateds, $existing_translations, $target_locale);
