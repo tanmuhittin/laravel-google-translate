@@ -4,11 +4,19 @@ Translate translation files (under /resources/lang) or lang.json files from spec
 ## refactor roadmap
 * Refactor functions : translate_php_array_files, skipMultidensional, translate_json_array_file
 
-## Str Api Translation Helpers
+## Str facade api translation helpers
 This package provides two translation methods for Laravel helper Str
 * `Illuminate\Support\Str::apiTranslate` -> Translates texts using your selected api in config
 * `Illuminate\Support\Str::apiTranslateWithAttributes` -> Again translates texts using your selected api in config
- in addition to that this function respects Laravel translation text attributes like :name 
+ in addition to that this function respects Laravel translation text attributes like :name
+ 
+## how to use your own translation api
+ 
+* Create your own translation api class by implementing Tanmuhittin\LaravelGoogleTranslate\Contracts\ApiTranslatorContract
+* Write your classname in config laravel_google_translate.custom_api_translator . Example : Myclass::class
+* Write your custom apikey for your custom class in laravel_google_translate.custom_api_translator_key
+
+Now all translations will use your custom api.
 
 ## installation
 ```console
@@ -43,12 +51,7 @@ This package can be used with https://github.com/andrey-helldar/laravel-lang-pub
 * Add base Laravel translation files using https://github.com/andrey-helldar/laravel-lang-publisher
 * Translate your custom files using this package
 
-Done <br>
-
-## todo
-* Handle vendor translations too
-* Prepare Web Interface
-* Add other translation API support (Bing, Yandex...)
+Done
 
 ## finally
 Thank you for using laravel-google-translate :)
