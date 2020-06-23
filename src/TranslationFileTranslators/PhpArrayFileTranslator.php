@@ -22,66 +22,103 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         $this->force = $force;
     }
 
-    /**
-     * todo : NEEDS REFACTORING
-     * @param $target_locale
-     * @throws \Exception
-     */
     public function handle($target_locale) : void
     {
-        $this->create_language_folder_if_missing($target_locale);
-        $files = $this->get_tranlation_files();
+        $files = $this->get_translation_files();
+        $this->create_missing_target_folders($target_locale, $files);
         foreach ($files as $file) {
-            $file = substr($file, 0, -4);
-            if (in_array($file, $this->excluded_files)) {
-                continue;
-            }
             $existing_translations = [];
-            if (file_exists(resource_path('lang/' . $target_locale . '/' . $file . '.php'))) {
-                $this->line('File already exists: lang/' . $target_locale . '/' . $file . '.php. Checking missing translations');
+            $file_address = $this->get_language_file_address($target_locale, $file.'.php');
+            if (file_exists($file_address)) {
+                $this->line('File already exists: '.$file_address.'. Checking missing translations');
                 $existing_translations = trans($file, [], $target_locale);
             }
             $to_be_translateds = trans($file, [], $this->base_locale);
             $translations = [];
             if (is_array($to_be_translateds)) {
-                $translations = $this->skipMultidensional($to_be_translateds, $existing_translations, $target_locale);
+                $translations = $this->handleTranslations($to_be_translateds, $existing_translations, $target_locale);
             }
             $this->write_translations_to_file($target_locale, $file, $translations);
         }
         return;
     }
 
+    // file, folder operations:
+
+    private function create_missing_target_folders($target_locale, $files)
+    {
+        foreach ($files as $file){
+            if(Str::contains($file, '/')){
+                $folder_address = $this->get_language_file_address($target_locale, Str::of($file)->dirname());
+                if(!is_dir($folder_address)){
+                    mkdir($folder_address, 0777, true);
+                }
+            }
+        }
+    }
+
     private function write_translations_to_file($target_locale, $file, $translations){
-        $file = fopen(resource_path('lang/' . $target_locale . '/' . $file . '.php'), "w+");
-        $write_text = "<?php \nreturn " . var_export($translations, true) . ";";
+        $file = fopen($this->get_language_file_address($target_locale, $file.'.php'), "w+");
+        $export = var_export($translations, true);
+
+        //use [] notation instead of array()
+        $patterns = [
+            "/array \(/" => '[',
+            "/^([ ]*)\)(,?)$/m" => '$1]$2',
+            "/=>[ ]?\n[ ]+\[/" => '=> [',
+            "/([ ]*)(\'[^\']+\') => ([\[\'])/" => '$1$2 => $3',
+        ];
+        $export = preg_replace(array_keys($patterns), array_values($patterns), $export);
+
+
+        $write_text = "<?php \nreturn " . $export . ";";
         fwrite($file, $write_text);
         fclose($file);
         return 1;
     }
 
-    private function create_language_folder_if_missing($target_locale){
-        if ($target_locale !== 'vendor') {
-            if (!is_dir(resource_path('lang/' . $target_locale))) {
-                mkdir(resource_path('lang/' . $target_locale));
-            }
-        }
+    private function get_language_file_address($locale, $sub_folder = null){
+        return $sub_folder!==null ?
+            resource_path('lang/' . $locale.'/'.$sub_folder) :
+            resource_path('lang/' . $locale);
     }
 
-    private function get_tranlation_files(){
+    private function strip_php_extension($filename){
+        if(substr($filename,-4) === '.php'){
+            $filename = substr($filename,0, -4);
+        }
+        return $filename;
+    }
+
+    private function get_translation_files($folder = null){
         if (count($this->target_files) > 0) {
             $files = $this->target_files;
         }
         else{
-            $files = preg_grep('/^([^.])/', scandir(resource_path('lang/' . $this->base_locale)));
+            $files = [];
+            $dir_contents = preg_grep('/^([^.])/', scandir($this->get_language_file_address($this->base_locale, $folder)));
+            foreach ($dir_contents as $dir_content){
+                if(!is_null($folder))
+                    $dir_content = $folder.'/'.$dir_content;
+                if (in_array($this->strip_php_extension($dir_content), $this->excluded_files)) {
+                    continue;
+                }
+                if(is_dir($this->get_language_file_address($this->base_locale, $dir_content))){
+                    $files = array_merge($files,$this->get_translation_files($dir_content));
+                }
+                else{
+                    $files[] = $this->strip_php_extension($dir_content);
+                }
+            }
         }
         return $files;
     }
 
+
+    // in file operations :
+
     /**
-     * todo : NEEDS REFACTORING
      * Walks array recursively to find strings already translated
-     *
-     * @author Maykon Facincani <facincani.maykon@gmail.com>
      *
      * @param array $to_be_translateds
      * @param array $existing_translations
@@ -89,46 +126,30 @@ class PhpArrayFileTranslator implements FileTranslatorContract
      *
      * @return array
      */
-    private function skipMultidensional($to_be_translateds, $existing_translations, $target_locale)
+    private function handleTranslations($to_be_translateds, $existing_translations, $target_locale)
     {
-        $data = [];
+        $translations = [];
         foreach ($to_be_translateds as $key => $to_be_translated) {
-            if (is_array($to_be_translateds[$key])) {
+            if (is_array($to_be_translated)) {
                 if (!isset($existing_translations[$key])) {
                     $existing_translations[$key] = [];
                 }
-                $data[$key] = $this->skipMultidensional($to_be_translateds[$key], $existing_translations[$key], $target_locale);
+                $translations[$key] = $this->handleTranslations($to_be_translated, $existing_translations[$key], $target_locale);
             } else {
                 if (isset($existing_translations[$key]) && $existing_translations[$key] != '' && !$this->force) {
-                    $data[$key] = $existing_translations[$key];
-                    if ($this->verbose) {
-                        $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $data[$key]);
-                    }
+                    $translations[$key] = $existing_translations[$key];
+                    $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $translations[$key]);
                     continue;
                 } else {
-                    $data[$key] = $this->translate_attribute($to_be_translated, $target_locale);
+                    $translations[$key] = Str::apiTranslateWithAttributes($to_be_translated, $target_locale, $this->base_locale);
+                    $this->line($to_be_translated . ' : ' . $translations[$key]);
                 }
             }
         }
-        return $data;
+        return $translations;
     }
 
-    private function translate_attribute($attribute, $target_locale)
-    {
-        if (is_array($attribute)) {
-            $return = [];
-            foreach ($attribute as $k => $t) {
-                $return[$k] = $this->translate_attribute($t, $target_locale);
-            }
-            return $return;
-        } else {
-            $translated = Str::apiTranslateWithAttributes($attribute, $target_locale, $this->base_locale);
-            if ($this->verbose) {
-                $this->line($attribute . ' : ' . $translated);
-            }
-            return $translated;
-        }
-    }
+    // others
 
     public function setTargetFiles($target_files)
     {
