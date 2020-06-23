@@ -8,7 +8,8 @@
     "illuminate/translation": "^5.5|^6|^7",
     "stichoza/google-translate-php": "^4.0",
     "google/cloud-translate": "dev-master",
-    "yandex/translate-api": "dev-master"
+    "yandex/translate-api": "dev-master",
+    "ext-json": "*"
   },
   "extra": {
     "laravel": {
@@ -28,8 +29,5 @@
       "email": "tanmuhittin@gmail.com"
     }
   ],
-  "minimum-stability": "dev",
-  "require-dev": {
-    "ext-json": "*"
-  }
+  "minimum-stability": "dev"
 }

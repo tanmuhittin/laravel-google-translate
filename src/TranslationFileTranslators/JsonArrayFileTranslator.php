@@ -21,14 +21,7 @@ class JsonArrayFileTranslator implements FileTranslatorContract
         $this->force = $force;
     }
 
-    /**
-     * todo : NEEDS REFACTORING
-     * @param $locale
-     * @param $stringKeys
-     * @throws \ErrorException
-     * @throws \Exception
-     */
-    public function handle($target_locale)
+    public function handle($target_locale) : void
     {
         $stringKeys = $this->explore_strings();
         $existing_translations = $this->fetch_existing_translations($target_locale);
@@ -46,6 +39,7 @@ class JsonArrayFileTranslator implements FileTranslatorContract
             $this->line($to_be_translated . ' : ' . $translated_strings[$to_be_translated]);
         }
         $this->write_translated_strings_to_file($translated_strings, $target_locale);
+        return;
     }
 
     private function write_translated_strings_to_file($translated_strings,$target_locale){

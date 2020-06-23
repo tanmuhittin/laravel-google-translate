@@ -36,7 +36,14 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
     {
         $this->app->singleton(ApiTranslatorContract::class, function ($app) {
             $config = $app->make('config')->get('laravel_google_translate');
-            if ($config['google_translate_api_key'] !== null) {
+            if ($config['custom_api_translator']!==null){
+                $custom_translator = new $config['custom_api_translator']($config['custom_api_translator_key']);
+                if($custom_translator instanceof ApiTranslatorContract)
+                    return $custom_translator;
+                else
+                    throw new \Exception($config['custom_api_translator'].' must implement '.ApiTranslatorContract::class);
+            }
+            elseif ($config['google_translate_api_key'] !== null) {
                 return new GoogleApiTranslate($config['google_translate_api_key']);
             } elseif ($config['yandex_translate_api_key'] !== null) {
                 return new YandexApiTranslate($config['yandex_translate_api_key']);

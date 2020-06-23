@@ -79,7 +79,7 @@ class TranslateFilesCommand extends Command
             $this->json = true;
             $file_translator = new JsonArrayFileTranslator($this->base_locale, $this->verbose, $this->force);
         }
-        if (!$this->json) {
+        else {
             $file_translator = new PhpArrayFileTranslator($this->base_locale, $this->verbose, $this->force);
             $this->target_files = array_filter(explode(",", $this->ask('Are there specific target files to translate only? ex: file1,file2', '')));
             foreach ($this->target_files as $key => $target_file) {
