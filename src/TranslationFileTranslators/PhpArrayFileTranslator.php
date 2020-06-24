@@ -50,6 +50,10 @@ class PhpArrayFileTranslator implements FileTranslatorContract
 
     private function create_missing_target_folders($target_locale, $files)
     {
+        $target_locale_folder = $this->get_language_file_address($target_locale);
+        if(!is_dir($target_locale_folder)){
+            mkdir($target_locale_folder);
+        }
         foreach ($files as $file){
             if(Str::contains($file, '/')){
                 $folder_address = $this->get_language_file_address($target_locale, Str::of($file)->dirname());
