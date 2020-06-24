@@ -3,10 +3,7 @@
 * Translate translation files (under /resources/lang) or lang.json files
 * Provide extra facade functions Str::apiTranslate and Str::apiTranslateWithAttributes
 
-by using stichoza/google-translate-php or Google Translate API https://cloud.google.com/translate/ or Yandex Translatin API https://tech.yandex.com/translate/ 
-
-## refactor roadmap
-* write unit tests
+by using stichoza/google-translate-php or Google Translate API https://cloud.google.com/translate/ or Yandex Translatin API https://tech.yandex.com/translate/
 
 ## Str facade api-translation helpers
 This package provides two translation methods for Laravel helper Str
