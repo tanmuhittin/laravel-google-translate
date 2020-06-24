@@ -1,14 +1,18 @@
 # laravel-google-translate
-Translate translation files (under /resources/lang) or lang.json files from specified base locale to other languages using stichoza/google-translate-php or Google Translate API https://cloud.google.com/translate/
+
+* Translate translation files (under /resources/lang) or lang.json files
+* Provide extra facade functions Str::apiTranslate and Str::apiTranslateWithAttributes
+
+by using stichoza/google-translate-php or Google Translate API https://cloud.google.com/translate/ or Yandex Translatin API https://tech.yandex.com/translate/ 
 
 ## refactor roadmap
 * write unit tests
 
-## Str facade api translation helpers
+## Str facade api-translation helpers
 This package provides two translation methods for Laravel helper Str
 * `Illuminate\Support\Str::apiTranslate` -> Translates texts using your selected api in config
 * `Illuminate\Support\Str::apiTranslateWithAttributes` -> Again translates texts using your selected api in config
- in addition to that this function respects Laravel translation text attributes like :name
+ in addition to that this function ***respects Laravel translation text attributes*** like :name
  
 ## how to use your own translation api
  
@@ -20,7 +24,7 @@ Now all translations will use your custom api.
 
 ## installation
 ```console
-composer require tanmuhittin/laravel-google-translate --dev
+composer require tanmuhittin/laravel-google-translate
 php artisan vendor:publish --provider="Tanmuhittin\LaravelGoogleTranslate\LaravelGoogleTranslateServiceProvider"
 ```
 

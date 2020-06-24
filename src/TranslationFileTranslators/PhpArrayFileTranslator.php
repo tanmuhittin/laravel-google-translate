@@ -121,7 +121,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
     // in file operations :
 
     /**
-     * Walks array recursively to find strings already translated
+     * Walks array recursively to find and translate strings
      *
      * @param array $to_be_translateds
      * @param array $existing_translations
