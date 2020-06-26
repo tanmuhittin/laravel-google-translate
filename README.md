@@ -19,9 +19,6 @@ This package provides two translation methods for Laravel helper Str
 
 Now all translations will use your custom api.
 
-## this project needs refactor
-Project code needs to be designed much better. Refactoring is in progress in refactor-code branch
-
 ## installation
 ```console
 composer require tanmuhittin/laravel-google-translate
