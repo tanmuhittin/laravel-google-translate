@@ -6,7 +6,10 @@
     "php": ">=7.0.0",
     "illuminate/support": "^5.5|^6|^7",
     "illuminate/translation": "^5.5|^6|^7",
-    "stichoza/google-translate-php": "^4.0"
+    "stichoza/google-translate-php": "^4.0",
+    "google/cloud-translate": "dev-master",
+    "yandex/translate-api": "dev-master",
+    "ext-json": "*"
   },
   "extra": {
     "laravel": {
@@ -31,9 +34,10 @@
       "email": "tanmuhittin@gmail.com"
     }
   ],
-  "minimum-stability": "dev",
   "require-dev": {
-    "phpunit/phpunit": "^8.3@dev",
-    "ext-json": "*"
-  }
+    "phpunit/phpunit": "^8.3",
+    "orchestra/testbench": "5.x-dev"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

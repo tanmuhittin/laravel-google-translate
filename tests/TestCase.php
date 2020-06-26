@@ -2,11 +2,13 @@
 
 namespace Tanmuhittin\LaravelGoogleTranslateTests;
 
-abstract class TestCase extends \PHPUnit\Framework\TestCase
+use Tanmuhittin\LaravelGoogleTranslate\LaravelGoogleTranslateServiceProvider;
+use Tests\Laravel\App;
+
+abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
-    public function __construct()
+    protected function getPackageProviders($app)
     {
-        parent::__construct();
-        include_once __DIR__ . './../src/DeclareFunctionsIfMissing.php';
+        return [LaravelGoogleTranslateServiceProvider::class];
     }
 }
