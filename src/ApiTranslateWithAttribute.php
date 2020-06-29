@@ -16,9 +16,9 @@ class ApiTranslateWithAttribute
 
     private $parameter_map;
 
-    public function __construct()
+    public function __construct(ApiTranslatorContract $translator)
     {
-        $this->translator = resolve(ApiTranslatorContract::class);
+        $this->translator = $translator;
     }
 
     /**
