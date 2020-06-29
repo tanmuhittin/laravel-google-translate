@@ -16,7 +16,7 @@ class YandexApiTranslate implements ApiTranslatorContract
 
     }
 
-    public function translate(string $text, string $locale, string $base_locale): string
+    public function translate(string $text, string $locale, string $base_locale = null): string
     {
         try {
             $translation = $this->handle->translate($text, $base_locale . '-' . $locale);

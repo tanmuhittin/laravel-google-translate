@@ -20,5 +20,5 @@ interface ApiTranslatorContract
      * @param string|null $base_locale
      * @return string
      */
-    public function translate(string $text, string $locale, string $base_locale): string;
+    public function translate(string $text, string $locale, string $base_locale = null): string;
 }

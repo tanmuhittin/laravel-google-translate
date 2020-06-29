@@ -1,24 +1,18 @@
 <?php
 
-namespace Tanmuhittin\LaravelGoogleTranslate;
+namespace Tanmuhittin\LaravelGoogleTranslate\Translators;
 
 
 use Tanmuhittin\LaravelGoogleTranslate\Contracts\ApiTranslatorContract;
 
-class ApiTranslateWithAttribute
+class ApiTranslateWithAttribute extends ApiTranslate
 {
-    private $translator;
-
-    //api limit settings
-    private $request_count = 0;
-    private $request_per_sec = 5;
-    private $sleep_for_sec = 1;
 
     private $parameter_map;
 
-    public function __construct(ApiTranslatorContract $translator)
+    public function __construct(ApiTranslatorContract $translator, $request_per_second, $sleep_for_sec)
     {
-        $this->translator = $translator;
+        parent::__construct($translator, $request_per_second, $sleep_for_sec);
     }
 
     /**
@@ -28,7 +22,7 @@ class ApiTranslateWithAttribute
      * @param $text
      * @return mixed|string
      */
-    public function translate($text, $locale, $base_locale = null)
+    public function translateWithAttributes($text, $locale, $base_locale = null) : string
     {
         $this->api_limit_check();
 
@@ -39,18 +33,6 @@ class ApiTranslateWithAttribute
         $translated = $this->post_handle_parameters($translated);
 
         return $translated;
-    }
-
-    /**
-     * Check if the API request limit reached.
-     */
-    private function api_limit_check()
-    {
-        if ($this->request_count >= $this->request_per_sec) {
-            sleep($this->sleep_for_sec);
-            $this->request_count = 0;
-        }
-        $this->request_count++;
     }
 
 

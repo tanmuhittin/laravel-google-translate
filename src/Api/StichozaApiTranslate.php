@@ -19,9 +19,9 @@ class StichozaApiTranslate implements ApiTranslatorContract
         $this->handle = new GoogleTranslate();
     }
 
-    public function translate(string $text, string $locale, string $base_locale): string
+    public function translate(string $text, string $locale, string $base_locale = null): string
     {
-        if (is_null($base_locale))
+        if ($base_locale === null)
             $this->handle->setSource();
         else
             $this->handle->setSource($base_locale);

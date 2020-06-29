@@ -17,9 +17,9 @@ class GoogleApiTranslate implements ApiTranslatorContract
 
     }
 
-    public function translate(string $text, string $locale, string $base_locale): string
+    public function translate(string $text, string $locale, string $base_locale = null): string
     {
-        if (is_null($base_locale))
+        if ($base_locale === null)
             $result = $this->handle->translate($text, [
                 'target' => $locale
             ]);
