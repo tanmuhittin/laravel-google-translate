@@ -56,7 +56,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         }
         foreach ($files as $file){
             if(Str::contains($file, '/')){
-                $folder_address = $this->get_language_file_address($target_locale, Str::of($file)->dirname());
+                $folder_address = $this->get_language_file_address($target_locale, dirname($file));
                 if(!is_dir($folder_address)){
                     mkdir($folder_address, 0777, true);
                 }
