@@ -83,7 +83,7 @@ class TranslateFilesCommand extends Command
             $file_translator = new PhpArrayFileTranslator($this->base_locale, $this->verbose, $this->force);
             $this->target_files = array_filter(explode(",", $this->ask('Are there specific target files to translate only? ex: file1,file2', '')));
             foreach ($this->target_files as $key => $target_file) {
-                $this->target_files[$key] = $target_file . '.php';
+                $this->target_files[$key] = $target_file;
             }
             $file_translator->setTargetFiles($this->target_files);
             $this->excluded_files = array_filter(explode(",", $this->ask('Are there specific files to exclude?', 'auth,pagination,validation,passwords')));
