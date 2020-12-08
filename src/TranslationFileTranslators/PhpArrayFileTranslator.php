@@ -149,6 +149,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
                     continue;
                 } else {
                     $translations[$key] = Str::apiTranslateWithAttributes($to_be_translated, $target_locale, $this->base_locale);
+                    $translations[$key] = $this->fixPossibleTranslationIssues($to_be_translated, $translations[$key]);
                     $this->line($to_be_translated . ' : ' . $translations[$key]);
                 }
             }
@@ -166,5 +167,48 @@ class PhpArrayFileTranslator implements FileTranslatorContract
     public function setExcludedFiles($excluded_files)
     {
         $this->excluded_files = $excluded_files;
+    }
+
+    private function fixPossibleTranslationIssues($originalText, $translatedText)
+    {
+        if (Str::contains($originalText, ':')) {
+            $originalTextArray = explode(':', $originalText);
+            $translatedTextArray = explode(':', $translatedText);
+
+            if (count($originalTextArray) == count($translatedTextArray)) {
+                for ($i = 0; $i < count($originalTextArray); $i++) {
+                    if (Str::of($originalTextArray[$i])->trim() == '') {
+                        $translatedTextArray[$i] = $originalTextArray[$i];
+                        continue;
+                    }
+
+                    if (!Str::startsWith($originalTextArray[$i], ' ')) {
+                        $translatedTextArray[$i] = Str::of($translatedTextArray[$i])->ltrim();
+                    }
+
+                    if (Str::endsWith($originalTextArray[$i], ' ') && !Str::endsWith($translatedTextArray[$i], ' ')) {
+                        $translatedTextArray[$i] = $translatedTextArray[$i] . ' ';
+                    }
+                }
+
+                $translatedText = implode(':', $translatedTextArray);
+            } else {
+                $this->error('Warning: "' . $originalText . '" has possible translation issue');
+            }
+        }
+
+        if (Str::contains($originalText, '|')) {
+            if (count(array_filter(explode('|', $originalText))) != count(array_filter(explode('|', $translatedText)))) {
+                $this->error('Warning: "' . $originalText . '" has possible translation issue');
+            }
+        }
+
+        $patterns = [
+            "/\s\|\s/" => '|',
+        ];
+
+        $translatedText = preg_replace(array_keys($patterns), array_values($patterns), $translatedText);
+
+        return $translatedText;
     }
 }
