@@ -1,6 +1,7 @@
 {
   "name": "tanmuhittin/laravel-google-translate",
   "description": "Translate translation files to other languages using google translate api",
+  "license": "MIT",
   "require": {
     "illuminate/console": ">=5.1",
     "php": ">=7.0.0",
