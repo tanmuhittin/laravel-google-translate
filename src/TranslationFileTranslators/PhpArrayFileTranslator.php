@@ -100,38 +100,26 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         return $filename;
     }
 
-    private function get_translation_files($folder = null)
+    private function get_translation_files()
     {
 
         if (count($this->target_files) > 0) {
             return $this->target_files;
         }
 
+        $lang_path          = $this->to_unix_dir_separator(resource_path('lang'));
+        $directory_iterator = new \RecursiveDirectoryIterator($lang_path);
+        $recursive_iterator = new \RecursiveIteratorIterator($directory_iterator);
+        $regex              = '/^.+\\\\' . $this->base_locale . '\\\\.+\.php$/i';
+        $regex_iterator     = new \RegexIterator($recursive_iterator, $regex, \RecursiveRegexIterator::GET_MATCH);
+
         $files = [];
-        $dir_contents = preg_grep('/^([^.])/', scandir($this->get_language_file_address($this->base_locale, $folder)));
 
-        foreach ($dir_contents as $dir_content) {
-            if (!is_null($folder)) {
-                $dir_content = $folder.'/'.$dir_content;
-            }
-
-            $file = $this->strip_php_extension($dir_content);
-
-            if (in_array($file, $this->excluded_files)) {
-                continue;
-            }
-
-            if (is_dir($this->get_language_file_address($this->base_locale, $dir_content))) {
-                $files = array_merge($files, $this->get_translation_files($dir_content));
-                continue;
-            }
-
-            $files[] = $file;
+        foreach ($regex_iterator as $file_info) {
+            $files[] = $this->to_unix_dir_separator($file_info[0]);
         }
-
         return $files;
     }
-
 
     // in file operations :
 
