@@ -115,15 +115,18 @@ class PhpArrayFileTranslator implements FileTranslatorContract
                 $dir_content = $folder.'/'.$dir_content;
             }
 
-            if (in_array($this->strip_php_extension($dir_content), $this->excluded_files)) {
+            $file = $this->strip_php_extension($dir_content);
+
+            if (in_array($file, $this->excluded_files)) {
                 continue;
             }
 
             if (is_dir($this->get_language_file_address($this->base_locale, $dir_content))) {
                 $files = array_merge($files, $this->get_translation_files($dir_content));
-            } else {
-                $files[] = $this->strip_php_extension($dir_content);
+                continue;
             }
+
+            $files[] = $file;
         }
 
         return $files;
