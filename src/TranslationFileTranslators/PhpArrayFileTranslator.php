@@ -170,6 +170,11 @@ class PhpArrayFileTranslator implements FileTranslatorContract
 
     // others
 
+    public function to_unix_dir_separator(string $path): string
+    {
+        return str_replace('\\', '/', $path);
+    }
+
     public function setTargetFiles($target_files)
     {
         $this->target_files = $target_files;
