@@ -28,7 +28,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         $this->create_missing_target_folders($target_locale, $files);
         foreach ($files as $file) {
             $existing_translations = [];
-            $file_address = $this->get_language_file_address($target_locale, $file.'.php');
+            $file_address = $this->get_language_file_address($target_locale, $file . '.php');
             $this->line($file_address.' is preparing');
             if (file_exists($file_address)) {
                 $this->line('File already exists');
@@ -51,20 +51,22 @@ class PhpArrayFileTranslator implements FileTranslatorContract
     private function create_missing_target_folders($target_locale, $files)
     {
         $target_locale_folder = $this->get_language_file_address($target_locale);
-        if(!is_dir($target_locale_folder)){
+        if (! is_dir($target_locale_folder)) {
             mkdir($target_locale_folder);
         }
-        foreach ($files as $file){
-            if(Str::contains($file, '/')){
+
+        foreach ($files as $file) {
+            if (Str::contains($file, '/')) {
                 $folder_address = $this->get_language_file_address($target_locale, dirname($file));
-                if(!is_dir($folder_address)){
+                if (! is_dir($folder_address)) {
                     mkdir($folder_address, 0777, true);
                 }
             }
         }
     }
 
-    private function write_translations_to_file($target_locale, $file, $translations){
+    private function write_translations_to_file($target_locale, $file, $translations)
+    {
         $file = fopen($this->get_language_file_address($target_locale, $file.'.php'), "w+");
         $export = var_export($translations, true);
 
@@ -77,47 +79,55 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         ];
         $export = preg_replace(array_keys($patterns), array_values($patterns), $export);
 
-
         $write_text = "<?php \nreturn " . $export . ";";
         fwrite($file, $write_text);
         fclose($file);
         return 1;
     }
 
-    private function get_language_file_address($locale, $sub_folder = null){
-        return $sub_folder!==null ?
-            resource_path('lang/' . $locale.'/'.$sub_folder) :
+    private function get_language_file_address($locale, $sub_folder = null)
+    {
+        return $sub_folder !== null ?
+            resource_path('lang/' . $locale . '/' . $sub_folder) :
             resource_path('lang/' . $locale);
     }
 
-    private function strip_php_extension($filename){
-        if(substr($filename,-4) === '.php'){
-            $filename = substr($filename,0, -4);
+    private function strip_php_extension($filename)
+    {
+        if (substr($filename, -4) === '.php') {
+            $filename = substr($filename, 0, -4);
         }
         return $filename;
     }
 
-    private function get_translation_files($folder = null){
+    private function get_translation_files($folder = null)
+    {
+
         if (count($this->target_files) > 0) {
-            $files = $this->target_files;
-        }
-        else{
+            return $this->target_files;
+
+        } else {
+
             $files = [];
             $dir_contents = preg_grep('/^([^.])/', scandir($this->get_language_file_address($this->base_locale, $folder)));
-            foreach ($dir_contents as $dir_content){
-                if(!is_null($folder))
+
+            foreach ($dir_contents as $dir_content) {
+                if (!is_null($folder)) {
                     $dir_content = $folder.'/'.$dir_content;
+                }
+
                 if (in_array($this->strip_php_extension($dir_content), $this->excluded_files)) {
                     continue;
                 }
-                if(is_dir($this->get_language_file_address($this->base_locale, $dir_content))){
-                    $files = array_merge($files,$this->get_translation_files($dir_content));
-                }
-                else{
+
+                if (is_dir($this->get_language_file_address($this->base_locale, $dir_content))) {
+                    $files = array_merge($files, $this->get_translation_files($dir_content));
+                } else {
                     $files[] = $this->strip_php_extension($dir_content);
                 }
             }
         }
+
         return $files;
     }
 
@@ -153,6 +163,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
                 }
             }
         }
+
         return $translations;
     }
 
