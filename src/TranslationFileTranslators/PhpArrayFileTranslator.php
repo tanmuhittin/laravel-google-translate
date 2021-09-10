@@ -10,6 +10,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
 {
     use ConsoleHelper;
     private $base_locale;
+    private $base_locale_path;
     private $target_files;
     private $excluded_files;
     private $verbose;
@@ -18,6 +19,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
     public function __construct($base_locale, $verbose = true, $force = false)
     {
         $this->base_locale = $base_locale;
+        $this->base_locale_path = $this->to_unix_dir_separator(resource_path('lang/' . $this->base_locale . '/'));
         $this->verbose = $verbose;
         $this->force = $force;
     }
@@ -28,7 +30,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         $this->create_missing_target_folders($target_locale, $files);
         foreach ($files as $file) {
             $existing_translations = [];
-            $file_address = $this->get_language_file_address($target_locale, $file . '.php');
+            $file_address = $this->get_language_file_address($target_locale, $file);
             $this->line($file_address.' is preparing');
             if (file_exists($file_address)) {
                 $this->line('File already exists');
@@ -67,7 +69,8 @@ class PhpArrayFileTranslator implements FileTranslatorContract
 
     private function write_translations_to_file($target_locale, $file, $translations)
     {
-        $file = fopen($this->get_language_file_address($target_locale, $file.'.php'), "w+");
+        $target = $this->get_language_file_address($target_locale, $file);
+        $file   = fopen($target, "w+");
         $export = var_export($translations, true);
 
         //use [] notation instead of array()
@@ -87,9 +90,15 @@ class PhpArrayFileTranslator implements FileTranslatorContract
 
     private function get_language_file_address($locale, $sub_folder = null)
     {
-        return $sub_folder !== null ?
-            resource_path('lang/' . $locale . '/' . $sub_folder) :
-            resource_path('lang/' . $locale);
+        // We replace the first base locale code ocurrence and change it to the target locale code, this
+        // allows to us to use it with package translations (under /lang/vendor)
+        $dest_path = Str::replaceFirst(
+            '/' . $this->base_locale . '/',
+            '/' . $locale . '/',
+            (empty($sub_folder) ? $this->base_locale_path : $sub_folder)
+        );
+
+        return $dest_path;
     }
 
     private function strip_php_extension($filename)
