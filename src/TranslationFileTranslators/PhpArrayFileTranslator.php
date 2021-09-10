@@ -2,6 +2,7 @@
 
 namespace Tanmuhittin\LaravelGoogleTranslate\TranslationFileTranslators;
 
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use Tanmuhittin\LaravelGoogleTranslate\Contracts\FileTranslatorContract;
 use Tanmuhittin\LaravelGoogleTranslate\Helpers\ConsoleHelper;
@@ -30,14 +31,15 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         $this->create_missing_target_folders($target_locale, $files);
         foreach ($files as $file) {
             $existing_translations = [];
+            $group_to_translate = $this->file_to_namespace($file);
             $file_address = $this->get_language_file_address($target_locale, $file);
             $this->line($file_address.' is preparing');
             if (file_exists($file_address)) {
                 $this->line('File already exists');
-                $existing_translations = trans($file, [], $target_locale);
+                $existing_translations = trans($group_to_translate, [], $target_locale);
                 $this->line('Existing translations collected');
             }
-            $to_be_translateds = trans($file, [], $this->base_locale);
+            $to_be_translateds = trans($group_to_translate, [], $this->base_locale);
             $this->line('Source text collected');
             $translations = [];
             if (is_array($to_be_translateds)) {
@@ -166,6 +168,30 @@ class PhpArrayFileTranslator implements FileTranslatorContract
     }
 
     // others
+
+    /**
+     * Returns the formatted translation group name from a file, taking into account if it's a vendor language file
+     * @param string $file
+     * @return string
+     */
+    public function file_to_namespace(string $file): string
+    {
+        if (! Str::contains($file, '/vendor/')) {
+            return basename(strtolower($file), '.php');
+        }
+
+        // It's a vendor file, so the group is like vendor/package::group
+        $sub_vendor_path = Str::after($file, '/vendor/');
+        $namespace       = Str::before($sub_vendor_path, '/' . $this->base_locale . '/');
+        $group           = Str::after($sub_vendor_path, '/' . $this->base_locale . '/');
+
+        $group = $namespace . '::' . basename(strtolower($group), '.php');
+
+        // We make sure the namespace is added to the translator app
+        Lang::addNamespace($namespace, $file);
+
+        return $group;
+    }
 
     public function to_unix_dir_separator(string $path): string
     {
