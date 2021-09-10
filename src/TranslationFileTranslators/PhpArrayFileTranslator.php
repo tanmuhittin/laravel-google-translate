@@ -30,17 +30,21 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         $files = $this->get_translation_files();
         $this->create_missing_target_folders($target_locale, $files);
         foreach ($files as $file) {
+
             $existing_translations = [];
             $group_to_translate = $this->file_to_namespace($file);
             $file_address = $this->get_language_file_address($target_locale, $file);
+
             $this->line($file_address.' is preparing');
             if (file_exists($file_address)) {
                 $this->line('File already exists');
                 $existing_translations = trans($group_to_translate, [], $target_locale);
                 $this->line('Existing translations collected');
             }
+
             $to_be_translateds = trans($group_to_translate, [], $this->base_locale);
             $this->line('Source text collected');
+
             $translations = [];
             if (is_array($to_be_translateds)) {
                 $translations = $this->handleTranslations($to_be_translateds, $existing_translations, $target_locale);
