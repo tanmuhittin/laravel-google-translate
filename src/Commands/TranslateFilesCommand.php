@@ -62,7 +62,7 @@ class TranslateFilesCommand extends Command
     {
         //Collect input
         $this->base_locale = $this->ask('What is base locale?', config('app.locale', 'en'));
-        $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key', 'tr,it')));
+        $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key', config('laravel_google_translate.default_target_locales','tr,it'))));
         $should_force = $this->choice('Force overwrite existing translations?', ['No', 'Yes'], 'No');
         $this->force = false;
         if ($should_force === 'Yes') {
