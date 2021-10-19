@@ -76,6 +76,11 @@ class PhpArrayFileTranslator implements FileTranslatorContract
     private function write_translations_to_file($target_locale, $file, $translations)
     {
         $target = $this->get_language_file_address($target_locale, $file);
+
+        if (! file_exists(dirname($target))) {
+            mkdir(dirname($target), 0777, true);
+        }
+
         $file   = fopen($target, "w+");
         $export = var_export($translations, true);
 
