@@ -128,7 +128,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         }
 
         $lang_path          = $this->to_unix_dir_separator(resource_path('lang'));
-        $directory_iterator = new \RecursiveDirectoryIterator($lang_path);
+        $directory_iterator = new \RecursiveDirectoryIterator($lang_path, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS);
         $recursive_iterator = new \RecursiveIteratorIterator($directory_iterator);
         $regex              = '/^.+\\\\' . $this->base_locale . '\\\\.+\.php$/i';
         $regex_iterator     = new \RegexIterator($recursive_iterator, $regex, \RecursiveRegexIterator::GET_MATCH);
