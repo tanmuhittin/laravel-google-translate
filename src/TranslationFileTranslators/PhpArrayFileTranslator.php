@@ -87,8 +87,8 @@ class PhpArrayFileTranslator implements FileTranslatorContract
 
     private function get_language_file_address($locale, $sub_folder = null){
         return $sub_folder!==null ?
-            FileHelper::getFile('lang/' . $locale.'/'.$sub_folder) :
-            FileHelper::getFile('lang/' . $locale);
+            FileHelper::getFile($locale.'/'.$sub_folder) :
+            FileHelper::getFile($locale);
     }
 
     private function strip_php_extension($filename){
