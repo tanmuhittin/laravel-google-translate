@@ -5,6 +5,7 @@ namespace Tanmuhittin\LaravelGoogleTranslate\TranslationFileTranslators;
 use Illuminate\Support\Str;
 use Tanmuhittin\LaravelGoogleTranslate\Contracts\FileTranslatorContract;
 use Tanmuhittin\LaravelGoogleTranslate\Helpers\ConsoleHelper;
+use Tanmuhittin\LaravelGoogleTranslate\Helpers\FileHelper;
 
 class PhpArrayFileTranslator implements FileTranslatorContract
 {
@@ -86,8 +87,8 @@ class PhpArrayFileTranslator implements FileTranslatorContract
 
     private function get_language_file_address($locale, $sub_folder = null){
         return $sub_folder!==null ?
-            resource_path('lang/' . $locale.'/'.$sub_folder) :
-            resource_path('lang/' . $locale);
+            FileHelper::getFile($locale.'/'.$sub_folder) :
+            FileHelper::getFile($locale);
     }
 
     private function strip_php_extension($filename){
