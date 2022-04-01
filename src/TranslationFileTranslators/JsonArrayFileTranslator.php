@@ -27,6 +27,7 @@ class JsonArrayFileTranslator implements FileTranslatorContract
         $stringKeys = $this->explore_strings();
         $existing_translations = $this->fetch_existing_translations($target_locale);
         $translated_strings = [];
+        $counter_to_break = 0;
         foreach ($stringKeys as $to_be_translated) {
             //check existing translations
             if (isset($existing_translations[$to_be_translated]) &&
@@ -38,6 +39,14 @@ class JsonArrayFileTranslator implements FileTranslatorContract
             }
             $translated_strings[$to_be_translated] = addslashes(Str::apiTranslateWithAttributes($to_be_translated, $target_locale, $this->base_locale));
             $this->line($to_be_translated . ' : ' . $translated_strings[$to_be_translated]);
+            if ($translated_strings[$to_be_translated] == null)
+                $counter_to_break++;
+            else{
+                $counter_to_break = 0;
+            }
+
+            if ($counter_to_break > 10)
+                break;
         }
         $this->write_translated_strings_to_file($translated_strings, $target_locale);
         return;
@@ -100,7 +109,8 @@ class JsonArrayFileTranslator implements FileTranslatorContract
             "\k{quote}" .                                   // Match " or ' previously matched
             "[\),]";                                       // Close parentheses or new parameter
         $finder = new Finder();
-        $finder->in(base_path())->exclude('storage')->exclude('vendor')->name('*.php')->name('*.twig')->name('*.vue')->files();
+//        $finder->in(base_path())->exclude('storage')->exclude('vendor')->name('*.php')->name('*.twig')->name('*.vue')->files();
+        $finder->in(base_path())->notPath('/^storage/')->notPath('/^vendor/')->exclude('node_modules')->name('*.php')->name('*.twig')->name('*.vue')->files();
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
         foreach ($finder as $file) {
             // Search the current file for the pattern
