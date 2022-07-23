@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use Tanmuhittin\LaravelGoogleTranslate\Contracts\FileTranslatorContract;
 use Tanmuhittin\LaravelGoogleTranslate\Helpers\ConsoleHelper;
+use Tanmuhittin\LaravelGoogleTranslate\Helpers\FileHelper;
 
 class PhpArrayFileTranslator implements FileTranslatorContract
 {

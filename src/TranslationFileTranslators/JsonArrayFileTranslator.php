@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\Finder\Finder;
 use Tanmuhittin\LaravelGoogleTranslate\Contracts\FileTranslatorContract;
 use Tanmuhittin\LaravelGoogleTranslate\Helpers\ConsoleHelper;
+use Tanmuhittin\LaravelGoogleTranslate\Helpers\FileHelper;
 
 class JsonArrayFileTranslator implements FileTranslatorContract
 {
@@ -43,7 +44,7 @@ class JsonArrayFileTranslator implements FileTranslatorContract
     }
 
     private function write_translated_strings_to_file($translated_strings,$target_locale){
-        $file = fopen(resource_path('lang/' . $target_locale . '.json'), "w+");
+        $file = fopen(FileHelper::getFile($target_locale . '.json'), "w+");
         $write_text = json_encode($translated_strings, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         fwrite($file, $write_text);
         fclose($file);
@@ -51,8 +52,8 @@ class JsonArrayFileTranslator implements FileTranslatorContract
 
     private function fetch_existing_translations($target_locale){
         $existing_translations = [];
-        if (file_exists(resource_path('lang/' . $target_locale . '.json'))) {
-            $json_translations_string = file_get_contents(resource_path('lang/' . $target_locale . '.json'));
+        if (file_exists(FileHelper::getFile($target_locale . '.json'))) {
+            $json_translations_string = file_get_contents(FileHelper::getFile($target_locale . '.json'));
             $existing_translations = json_decode($json_translations_string, true);
         }
         return $existing_translations;
