@@ -22,10 +22,6 @@ class TranslateFilesCommandTest extends TestCase
         $this->assertFileExists(resource_path('lang/tr/tests.php'));
         unlink(resource_path('lang/tr/tests.php'));
         rmdir(resource_path('lang/tr'));
-
-        $this->assertFileExists(resource_path('lang/vendor/package/tr/vendor_tests.php'));
-        unlink(resource_path('lang/vendor/package/tr/vendor_tests.php'));
-        rmdir(resource_path('lang/vendor/package/tr'));
     }
 
     public function testTranslateJsonFilesCommand()
@@ -42,3 +38,4 @@ class TranslateFilesCommandTest extends TestCase
         unlink(resource_path('lang/tr.json'));
     }
 }
+
