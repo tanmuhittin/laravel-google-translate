@@ -25,11 +25,11 @@ class StichozaApiTranslate implements ApiTranslatorContract
             $this->handle->setSource();
         else
             $this->handle->setSource($base_locale);
-        $this->handle->setTarget($locale);
+            $this->handle->setTarget($locale);
         try {
-            return $this->handle->translate($text);
+            return $this->handle->translate($text) ?? "";
         } catch (\ErrorException $e) {
-            return false;
+            return "";
         }
     }
 }
