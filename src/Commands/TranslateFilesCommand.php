@@ -13,9 +13,9 @@ class TranslateFilesCommand extends Command
     public $locales;
     public $excluded_files;
     public $target_files;
-    public $json;
-    public $force;
-    public $verbose;
+    public $json = false;
+    public $force = false;
+    public $verbose = false;
 
     protected $translator;
     /**
@@ -63,24 +63,11 @@ class TranslateFilesCommand extends Command
         //Collect input
         $this->base_locale = $this->ask('What is base locale?', config('app.locale', 'en'));
         $this->locales = array_filter(explode(",", $this->ask('What are the target locales? Comma seperate each lang key', config('laravel_google_translate.default_target_locales','tr,it'))));
-        $should_force = $this->choice('Force overwrite existing translations?', ['No', 'Yes'], 'No');
-        $this->force = false;
-        if ($should_force === 'Yes') {
-            $this->force = true;
-        }
-        $should_verbose = $this->choice('Verbose each translation?', ['No', 'Yes'], 'Yes');
-        $this->verbose = false;
-        if ($should_verbose === 'Yes') {
-            $this->verbose = true;
-        }
-        $mode = $this->choice('Use text exploration and json translation or php files?', ['json', 'php'], 'php');
-        $this->json = false;
-        if ($mode === 'json') {
-            $this->json = true;
-            $file_translator = new JsonArrayFileTranslator($this->base_locale, $this->verbose, $this->force);
-        }
-        else {
-            $file_translator = new PhpArrayFileTranslator($this->base_locale, $this->verbose, $this->force);
+        $this->force = ($this->choice('Force overwrite existing translations?', ['No', 'Yes'], 'No') === 'Yes') ? true : false;
+        $this->verbose = ($this->choice('Verbose each translation?', ['No', 'Yes'], 'Yes') === 'Yes') ? true : false;
+        $file_translator = ($this->choice('Use text exploration and json translation or php files?', ['json', 'php'], 'php') === "json") ? new JsonArrayFileTranslator($this->base_locale, $this->verbose, $this->force) : new PhpArrayFileTranslator($this->base_locale, $this->verbose, $this->force);
+        
+        if ($file_translator instanceof PhpArrayFileTranslator) {
             $this->target_files = array_filter(explode(",", $this->ask('Are there specific target files to translate only? ex: file1,file2', '')));
             foreach ($this->target_files as $key => $target_file) {
                 $this->target_files[$key] = $target_file;
