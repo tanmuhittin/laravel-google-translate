@@ -1,5 +1,5 @@
 {
-  "name": "tanmuhittin/laravel-google-translate",
+  "name": "colorando-de/laravel-google-translate",
   "description": "Translate translation files to other languages using google translate api",
   "license": "MIT",
   "require": {
