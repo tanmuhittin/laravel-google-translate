@@ -5,9 +5,9 @@
   "require": {
     "illuminate/console": ">=5.1",
     "php": ">=7.1.0",
-    "illuminate/support": "^5.5|^6|^7|^8|^9|^10",
-    "illuminate/translation": "^5.5|^6|^7|^8|^9|^10",
-    "stichoza/google-translate-php": "^4.0",
+    "illuminate/support": "^5.5|^6|^7|^8|^9|^10|^11",
+    "illuminate/translation": "^5.5|^6|^7|^8|^9|^10|^11",
+    "stichoza/google-translate-php": "^5.0.1",
     "google/cloud-translate": "^1.7.4",
     "yandex/translate-api": "^1.5.2",
     "ext-json": "*"
@@ -36,8 +36,8 @@
     }
   ],
   "require-dev": {
-    "phpunit/phpunit": "^8.3",
-    "orchestra/testbench": "5.x-dev|6.x-dev"
+    "phpunit/phpunit": "^10.5",
+    "orchestra/testbench": "5.x-dev|6.x-dev|9.x-dev"
   },
   "minimum-stability": "dev",
   "prefer-stable": true
