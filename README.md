@@ -11,27 +11,29 @@ This package provides two translation methods for Laravel helper Str
 * `Illuminate\Support\Str::apiTranslateWithAttributes` -> Again translates texts using your selected api in config
  in addition to that this function ***respects Laravel translation text attributes*** like :name
  
-## how to use your own translation api
- 
-* Create your own translation api class by implementing Tanmuhittin\LaravelGoogleTranslate\Contracts\ApiTranslatorContract
-* Write your classname in config laravel_google_translate.custom_api_translator . Example : Myclass::class
-* Write your custom apikey for your custom class in laravel_google_translate.custom_api_translator_key
+## How to use your own translation API
+* Create your own translation API class by implementing `Tanmuhittin\LaravelGoogleTranslate\Contracts\ApiTranslatorContract`.
+* Set your classname in `config/laravel_google_translate.php` under the `custom_api_translator` key. 
+* Set your custom API key for your custom class in the `custom_api_translator_key` key in the config file, or ideally in the `CUSTOM_API_TRANSLATOR_KEY` environment variable.
+
+Example:<br>
+_config/laravel_google_translate.php_
+```php
+'custom_api_translator' => env('CUSTOM_API_TRANSLATOR', Myclass::class),
+'custom_api_translator_key' => env('CUSTOM_API_TRANSLATOR_KEY', null),
+```
 
 Now all translations will use your custom api.
 
 ## installation
 ```console
-composer require tanmuhittin/laravel-google-translate
+composer require --dev tanmuhittin/laravel-google-translate
 php artisan vendor:publish --provider="Tanmuhittin\LaravelGoogleTranslate\LaravelGoogleTranslateServiceProvider"
 ```
 
 If you would like to use stichoza/google-translate-php you do not need an API key. If you would like to use Google Translate API, edit config/laravel_google_translate.php and add your Google Translate API key.
 
-```console
-php artisan config:cache
-```
-
-Then you can run
+Then you can run:
 
 ```console
 php artisan translate:files
