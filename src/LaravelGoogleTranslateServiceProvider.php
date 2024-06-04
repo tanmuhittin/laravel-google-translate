@@ -41,6 +41,7 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
 
         $this->app->singleton(ApiTranslatorContract::class, function ($app) use ($config) {
             if (isset($config['custom_api_translator']) && $config['custom_api_translator']!==null){
+                echo 'Using your custom API translator', PHP_EOL;
                 $custom_translator = new $config['custom_api_translator']($config['custom_api_translator_key']);
                 if($custom_translator instanceof ApiTranslatorContract)
                     return $custom_translator;
@@ -48,10 +49,13 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
                     throw new \Exception($config['custom_api_translator'].' must implement '.ApiTranslatorContract::class);
             }
             elseif (isset($config['google_translate_api_key']) && $config['google_translate_api_key'] !== null) {
+                echo 'Using Google translator', PHP_EOL;
                 return new GoogleApiTranslate($config['google_translate_api_key']);
             } elseif (isset($config['yandex_translate_api_key']) && $config['yandex_translate_api_key'] !== null) {
+                echo 'Using Yandex translator', PHP_EOL;
                 return new YandexApiTranslate($config['yandex_translate_api_key']);
             } else {
+                echo 'Using Stichoza API translator', PHP_EOL;
                 return new StichozaApiTranslate(null);
             }
         });
