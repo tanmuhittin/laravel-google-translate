@@ -26,7 +26,7 @@ class StichozaApiTranslate implements ApiTranslatorContract
             ->setTarget($locale);
 
         try {
-            return $this->handle->translate($text);
+            return $this->handle->translate($text) ?? '';
         } catch (\Exception $e) {
             return false;
         }
