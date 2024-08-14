@@ -21,14 +21,13 @@ class StichozaApiTranslate implements ApiTranslatorContract
 
     public function translate(string $text, string $locale, string $base_locale = null): string
     {
-        if ($base_locale === null)
-            $this->handle->setSource();
-        else
-            $this->handle->setSource($base_locale);
-        $this->handle->setTarget($locale);
+        $this->handle
+            ->setSource($base_locale)
+            ->setTarget($locale);
+
         try {
             return $this->handle->translate($text);
-        } catch (\ErrorException $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }
