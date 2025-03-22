@@ -100,7 +100,7 @@ class JsonArrayFileTranslator implements FileTranslatorContract
             "\k{quote}" .                                   // Match " or ' previously matched
             "[\),]";                                       // Close parentheses or new parameter
         $finder = new Finder();
-        $finder->in(base_path())->exclude('storage')->exclude('vendor')->name('*.php')->name('*.twig')->name('*.vue')->files();
+        $finder->in(base_path())->exclude('storage')->exclude('vendor')->in(base_path().DIRECTORY_SEPARATOR.'resources'.DIRECTORY_SEPARATOR.'views'.DIRECTORY_SEPARATOR.'vendor')->name('*.php')->name('*.twig')->name('*.vue')->files();
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
         foreach ($finder as $file) {
             // Search the current file for the pattern
