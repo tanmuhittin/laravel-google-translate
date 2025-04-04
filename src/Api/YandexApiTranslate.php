@@ -23,6 +23,6 @@ class YandexApiTranslate implements ApiTranslatorContract
         } catch (\Exception $e) {
             return false;
         }
-        return $translation['text'][0]; //todo test if works Yandex code is old
+        return $translation->getResult()[0]; //todo test if works Yandex code is old
     }
 }
