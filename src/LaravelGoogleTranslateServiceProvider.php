@@ -73,12 +73,12 @@ class LaravelGoogleTranslateServiceProvider extends ServiceProvider
             );
         });
 
-        Str::macro('apiTranslate', function (string $text, string $locale, string $base_locale = null) {
+        Str::macro('apiTranslate', function (string $text, string $locale, ?string $base_locale = null) {
             ConfigHelper::getBaseLocale($base_locale);
             $translator = resolve(ApiTranslate::class);
             return $translator->translate($text, $locale, $base_locale);
         });
-        Str::macro('apiTranslateWithAttributes', function (string $text, string $locale, string $base_locale = null) {
+        Str::macro('apiTranslateWithAttributes', function (string $text, string $locale, ?string $base_locale = null) {
             ConfigHelper::getBaseLocale($base_locale);
             $translator = resolve(ApiTranslateWithAttribute::class);
             return $translator->translateWithAttributes($text, $locale, $base_locale);
