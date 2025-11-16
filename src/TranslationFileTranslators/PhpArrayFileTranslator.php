@@ -67,7 +67,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
 
     private function write_translations_to_file($target_locale, $file, $translations){
         $file = fopen($this->get_language_file_address($target_locale, $file.'.php'), "w+");
-        $export = var_export($translations, true);
+        $export = $this->varExport($translations);
 
         //use [] notation instead of array()
         $patterns = [
@@ -79,7 +79,7 @@ class PhpArrayFileTranslator implements FileTranslatorContract
         $export = preg_replace(array_keys($patterns), array_values($patterns), $export);
 
 
-        $write_text = "<?php \nreturn " . $export . ";";
+        $write_text = sprintf('<?php%s%sreturn %s;%s', PHP_EOL, PHP_EOL, $export, PHP_EOL);
         fwrite($file, $write_text);
         fclose($file);
         return 1;
@@ -167,5 +167,27 @@ class PhpArrayFileTranslator implements FileTranslatorContract
     public function setExcludedFiles($excluded_files)
     {
         $this->excluded_files = $excluded_files;
+    }
+
+    private function varExport($var, $indent = '')
+    {
+        switch (gettype($var)) {
+            case 'string':
+                return '"'.addcslashes($var, "\\\$\"\r\n\t\v\f").'"';
+            case 'array':
+                $indexed = array_keys($var) === range(0, count($var) - 1);
+                $r = [];
+                foreach ($var as $key => $value) {
+                    $r[] = "$indent    "
+                        .($indexed ? '' : self::varExport($key).' => ')
+                        .self::varExport($value, "$indent    ");
+                }
+
+                return "[\n".implode(",\n", $r)."\n".$indent.']';
+            case 'boolean':
+                return $var ? 'true' : 'false';
+            default:
+                return var_export($var, true);
+        }
     }
 }

@@ -1,10 +1,10 @@
 {
-  "name": "tanmuhittin/laravel-google-translate",
+  "name": "colorando-de/laravel-google-translate",
   "description": "Translate translation files to other languages using google translate api",
   "license": "MIT",
   "require": {
+    "php": ">=7.1.0",
     "illuminate/console": ">=5.1",
-    "php": ">=8.2",
     "illuminate/support": "^5.5|^6|^7|^8|^9|^10|^11|^12",
     "illuminate/translation": "^5.5|^6|^7|^8|^9|^10|^11|^12",
     "stichoza/google-translate-php": "^5.2.0",
