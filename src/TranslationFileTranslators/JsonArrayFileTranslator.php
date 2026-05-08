@@ -36,7 +36,7 @@ class JsonArrayFileTranslator implements FileTranslatorContract
                 $this->line('Exists Skipping -> ' . $to_be_translated . ' : ' . $translated_strings[$to_be_translated]);
                 continue;
             }
-            $translated_strings[$to_be_translated] = addslashes(Str::apiTranslateWithAttributes($to_be_translated, $target_locale, $this->base_locale));
+            $translated_strings[$to_be_translated] = Str::apiTranslateWithAttributes($to_be_translated, $target_locale, $this->base_locale);
             $this->line($to_be_translated . ' : ' . $translated_strings[$to_be_translated]);
         }
         $this->write_translated_strings_to_file($translated_strings, $target_locale);
