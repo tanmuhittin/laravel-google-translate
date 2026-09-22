@@ -48,8 +48,8 @@ class ApiTranslateWithAttribute extends ApiTranslate
         $parameter_map = [];
         $i = 1;
         foreach ($parameters as $match) {
-            $parameter_map ["x" . $i] = $match;
-            $text = str_replace($match, " x" . $i, $text);
+            $parameter_map ["XX" . $i ."XX"] = $match;
+            $text = str_replace($match, " XX" . $i ."XX", $text);
             $i++;
         }
         return ['parameter_map' => $parameter_map, 'text' => $text];
